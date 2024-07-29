@@ -375,11 +375,16 @@ function endMultiplayerGame(sessionId) {
               buttons: [
               botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
                     ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-
+        setTimeout(() => {
+          botly.sendText({
+             id: senderId,
+             text: `مرحبا بك في لعبة tic tac toe! 
+ يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق`
+                    });}, 1000)
          setTimeout(() => {
                             botly.sendText({
                         id: senderId,
-                        text: 'يمكنك الاختيار بين احد الازرار لبدأ اللعبة',
+                        text: 'ماذا تريد؟',
                         quick_replies: [
                         botly.createQuickReply('اللعب مع البوت', 'RESTART'),
                        botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
