@@ -277,15 +277,15 @@ function handleMultiplayerMove(sessionId, player, move) {
       endMultiplayerGame(sessionId);
     } else {
       botly.sendText({
-        id: session.player1,
-        text: ` ركز جيدا ❤️\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! ( إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك ...'}`
-      });
-      botly.sendText({
-        id: session.player2,
-        text: `أثق في قدراتك\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار أن يلعب صديقك...'}`
-      });
-      session.currentPlayer = nextPlayer;
-    }
+          id: session.player1,
+          text: `انت اخترت المكان ${move}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! ( إختر بين 1-9)' : 'اختار صديقك المكان ' + move + '\nفي إنتظار ان يلعب صديقك...'}`
+        });
+        botly.sendText({
+          id: session.player2,
+          text: `صديقك اختار المكان ${move}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'انت اخترت المكان ' + move + '\nفي إنتظار أن يلعب صديقك...'}`
+        });
+        session.currentPlayer = nextPlayer;
+      }
   } else {
     botly.sendText({
       id: player,
