@@ -260,13 +260,13 @@ function handleMultiplayerMove(sessionId, player, move) {
     if (checkWin(board, currentPlayer)) {
       botly.sendText({
         id: session.player1,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player1 ? 'صديقك الفائز 🥳!' : 'أنت الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
       });
       botly.sendText({
         id: session.player2,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
       });
-      endMultiplayerGame(sessionId);
+  endMultiplayerGame(sessionId);
     } else if (checkDraw(board)) {
       botly.sendText({
         id: session.player1,
