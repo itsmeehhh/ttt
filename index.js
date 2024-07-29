@@ -211,11 +211,11 @@ function handleMultiplayerMove(sessionId, player, move) {
     if (checkWin(board, currentPlayer)) {
       botly.sendText({
         id: session.player1,
-        text: `اووه لعبة جيدة 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
       });
       botly.sendText({
         id: session.player2,
-        text: `اووه لعبة جيدة 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
       });
       endMultiplayerGame(sessionId);
     } else if (checkDraw(board)) {
@@ -375,21 +375,16 @@ function endMultiplayerGame(sessionId) {
               buttons: [
               botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
                     ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-        setTimeout(() => {
-          botly.sendText({
-             id: senderId,
-             text: `مرحبا بك في لعبة tic tac toe! 
- يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق`
-                    });}, 1000)
-         setTimeout(() => {
-                            botly.sendText({
-                        id: senderId,
-                        text: 'ماذا تريد؟',
-                        quick_replies: [
-                        botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-                       botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-                                  ]
-                              });}, 1000)
+
+               setTimeout(() => {
+                                  botly.sendText({
+         id: senderId,
+         text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب ',
+                              quick_replies: [
+                              botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+                             botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+                                        ]
+                                    });}, 1000)
          } else if (postback == "Owner") {
           botly.sendGeneric({id: senderId, elements: {
                       title: "Morocco AI",
