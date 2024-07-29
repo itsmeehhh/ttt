@@ -85,7 +85,7 @@ function startGame(senderId) {
   userBoards[senderId] = initBoard();
   botly.sendText({
     id: senderId,
-    text: `لنبدأ اللعب 😏!\n${printBoard(userBoards[senderId])}\nحان دورك! (اختر بين 1-9)`
+    text: `رمزك ❌ / رمزي ⚪\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
   });
 }
 
