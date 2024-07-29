@@ -272,7 +272,7 @@ function invalidateInviteCode(sessionId) {
   if (session && session.player2 === null) {
     delete gameSessions[sessionId];
    botly.sendText({
-        id: senderId,
+        id: session.player1,
         text: 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا',
         quick_replies: [
           botly.createQuickReply('اللعب مع البوت', 'RESTART'),
