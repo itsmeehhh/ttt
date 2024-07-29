@@ -198,8 +198,6 @@ function handlePlayerMove(senderId, move) {
 }
 
 
-
-
 function handleMultiplayerMove(sessionId, player, move) {
   const session = gameSessions[sessionId];
   const board = session.board;
@@ -437,7 +435,7 @@ function invalidateInviteCode(sessionId) {
             }, 1000);
             setTimeout(() => {
               invalidateInviteCode(inviteCode);
-            }, 5 * 60 * 1000);
+            }, 1 * 60 * 1000);
           }
 
       botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
