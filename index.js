@@ -283,7 +283,7 @@ function endMultiplayerGame(sessionId) {
                                      } else {
      botly.sendText({
       id: senderId,
-      text: 'المكان محدد مسبقا ، إختر مكانا اخر بين 1 و 9...'
+      text: 'الرجاء اختيار بين 1 الى 9 فقط 😠 '
        });
         }
         } else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
