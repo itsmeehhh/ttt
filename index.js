@@ -265,7 +265,7 @@ function endMultiplayerGame(sessionId) {
         botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
                                      ]
                                    });
-                                 }, 1000); // Wait 1 second before sending the button
+                                 }, 1000);
  }
 function invalidateInviteCode(sessionId) {
   const session = gameSessions[sessionId];
@@ -425,7 +425,7 @@ function invalidateInviteCode(sessionId) {
             };
             botly.sendText({
               id: senderId,
-              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني `
+              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق`
             });
             setTimeout(() => {
               botly.sendText({
@@ -435,7 +435,7 @@ function invalidateInviteCode(sessionId) {
             }, 1000);
             setTimeout(() => {
               invalidateInviteCode(inviteCode);
-            }, 1 * 60 * 1000);
+            }, 5 * 60 * 1000);
           }
 
       botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
