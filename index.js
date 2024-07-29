@@ -114,7 +114,7 @@ function endGame(senderId, message) {
 
 function computerMove(board, player1Move) {
   const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
+    .map((value, index) => (value !== `${player1}` && value !== `${computer}` ? index + 1 : null))
     .filter(value => value !== null);
 
   if (emptyPositions.length === 0) return null;
@@ -137,7 +137,6 @@ function computerMove(board, player1Move) {
 
   if (blockingMove) return blockingMove;
 
-
   const strategicMove = findStrategicMove(board, emptyPositions);
   if (strategicMove) return strategicMove;
 
@@ -146,9 +145,8 @@ function computerMove(board, player1Move) {
 
 
 function findStrategicMove(board, emptyPositions) {
-  const cornerPositions = [1, 3, 7, 9];
-  const edgePositions = [2, 4, 6, 8];
-
+  const cornerPositions = [3, 1, 9, 7];
+  const edgePositions = [2, 6, 4, 8];
 
   if (emptyPositions.includes(5)) return 5;
 
@@ -160,6 +158,7 @@ function findStrategicMove(board, emptyPositions) {
 
   return null;
 }
+
 
 
 
