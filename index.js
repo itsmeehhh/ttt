@@ -44,9 +44,8 @@ function generateInviteCode() {
 
 
 function initBoard() {
-  return ['3️⃣','2️⃣','1️⃣','6️⃣','5️⃣','4️⃣','9️⃣','8️⃣','7️⃣'];
+  return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
 }
-
 
 function printBoard(board) {
   return `
@@ -59,8 +58,7 @@ function printBoard(board) {
 }
 
 function makeMove(board, position, symbol) {
-  const positionMap = [2, 1, 0, 5, 4, 3, 8, 7, 6];
-  const pos = positionMap[position - 1];
+  const pos = position - 1;
   if (board[pos] !== ` ${player1}` && board[pos] !== ` ${player2}` && board[pos] !== ` ${computer}`) {
     board[pos] = ` ${symbol}`;
     return true;
@@ -68,18 +66,16 @@ function makeMove(board, position, symbol) {
   return false;
 }
 
-
 function checkWin(board, symbol) {
   const winConditions = [
-    [2, 1, 0], [5, 4, 3], [8, 7, 6], // Rows
-    [2, 5, 8], [1, 4, 7], [0, 3, 6], // Columns
-    [2, 4, 6], [0, 4, 8] // Diagonals
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6] // Diagonals
   ];
   return winConditions.some(condition =>
     condition.every(index => board[index] === ` ${symbol}`)
   );
 }
-
 
 function checkDraw(board) {
   return board.every(cell => cell === ` ${player1}` || cell === ` ${player2}`);
@@ -89,7 +85,7 @@ function startGame(senderId) {
   userBoards[senderId] = initBoard();
   botly.sendText({
     id: senderId,
-    text: `رمزك ${player1} / رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
+    text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
   });
 }
 
@@ -114,7 +110,7 @@ function endGame(senderId, message) {
 
 function computerMove(board, player1Move) {
   const emptyPositions = board
-    .map((value, index) => (value !== `${player1}` && value !== `${computer}` ? index + 1 : null))
+    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
     .filter(value => value !== null);
 
   if (emptyPositions.length === 0) return null;
@@ -137,6 +133,7 @@ function computerMove(board, player1Move) {
 
   if (blockingMove) return blockingMove;
 
+
   const strategicMove = findStrategicMove(board, emptyPositions);
   if (strategicMove) return strategicMove;
 
@@ -145,8 +142,9 @@ function computerMove(board, player1Move) {
 
 
 function findStrategicMove(board, emptyPositions) {
-  const cornerPositions = [3, 1, 9, 7];
-  const edgePositions = [2, 6, 4, 8];
+  const cornerPositions = [1, 3, 7, 9];
+  const edgePositions = [2, 4, 6, 8];
+
 
   if (emptyPositions.includes(5)) return 5;
 
@@ -158,7 +156,6 @@ function findStrategicMove(board, emptyPositions) {
 
   return null;
 }
-
 
 
 
