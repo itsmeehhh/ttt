@@ -242,7 +242,7 @@ function resetMultiplayerSessionTimeout(sessionId) {
   }
   session.timeout = setTimeout(() => {
     invalidateMultiplayerSession(sessionId);
-  }, 5 * 60 * 1000); // 5 دقائق
+  }, 1 * 60 * 1000); // 5 دقائق
 }
 
 function handleMultiplayerMove(sessionId, player, move) {
