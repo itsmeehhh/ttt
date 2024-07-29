@@ -289,17 +289,23 @@ function endMultiplayerGame(sessionId) {
         } else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
       const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId);
       const session = gameSessions[sessionId];
-      if (session.currentPlayer === senderId) {
+  //
+       if (session.player2 === null) {
+         botly.sendText({
+           id: senderId,
+           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة'
+         });
+ } else if (session.currentPlayer === senderId) {
       const move = parseInt(text);
       if (!isNaN(move) && move >= 1 && move <= 9) {
                                          handleMultiplayerMove(sessionId, senderId, move);
-                            } else {
+  } else {
     botly.sendText({
       id: senderId,
       text: 'الرجاء الإختيار بين 1 الى 9 فقط 😠'
           });
             }
-                            } else {
+      } else {
      botly.sendText({
        id: senderId,
        text: 'لم يأتي دورك بعد، من فضلك انتظر حتى يلعب صديقك.'
