@@ -44,7 +44,7 @@ function generateInviteCode() {
 
 
 function initBoard() {
-  return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
+  return ['3️⃣','2️⃣','1️⃣','6️⃣','5️⃣','4️⃣','9️⃣','8️⃣','7️⃣'];
 }
 
 function printBoard(board) {
@@ -58,7 +58,9 @@ function printBoard(board) {
 }
 
 function makeMove(board, position, symbol) {
-  const pos = position - 1;
+  //const pos = position - 1;
+  const reversedPosition = 10 - position; 
+  const pos = reversedPosition - 1; 
   if (board[pos] !== ` ${player1}` && board[pos] !== ` ${player2}` && board[pos] !== ` ${computer}`) {
     board[pos] = ` ${symbol}`;
     return true;
