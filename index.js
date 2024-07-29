@@ -320,11 +320,11 @@ function endMultiplayerGame(sessionId) {
                                        gameSessions[sessionId].player2 = senderId;
      botly.sendText({
      id: gameSessions[sessionId].player1,
-    text: 'قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان'
+    text: 'قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\n رمزك هو : ❌\nرمز صديقك : ⚪'
                        });
       botly.sendText({
          id: senderId,
-         text: 'قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان'
+         text: 'قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو : ⚪\nرمز صديقك :❌'
                           });
       setTimeout(() => {
        botly.sendText({
