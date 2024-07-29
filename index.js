@@ -92,7 +92,7 @@ function startGame(senderId) {
 function endGame(senderId, message) {
   botly.sendText({
     id: senderId,
-    text: `${printBoard(userBoards[senderId])}\n${message}`
+    text: `انتهت اللعبة 😉\n${printBoard(userBoards[senderId])}\n${message}`
   }, function() {
     setTimeout(() => {
       botly.sendText({
