@@ -85,7 +85,7 @@ function startGame(senderId) {
   userBoards[senderId] = initBoard();
   botly.sendText({
     id: senderId,
-    text: `رمزك ❌ / رمزي ⚪\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
+    text: `رمزك ${player1} / رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
   });
 }
 
@@ -386,11 +386,11 @@ function invalidateInviteCode(sessionId) {
 
            botly.sendText({
                id: gameSessions[sessionId].player1,
-               text: 'قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\n رمزك هو : ❌\nرمز صديقك : ⚪'
+               text: `قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\nرمزك هو ${player1} و رمز صديقك ${player2}`
            });
            botly.sendText({
                id: senderId,
-               text: 'قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو : ⚪\nرمز صديقك :❌'
+               text: `قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو ${player2} و رمز صديقك ${player1}`
            });
            setTimeout(() => {
                botly.sendText({
