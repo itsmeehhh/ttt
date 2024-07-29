@@ -59,8 +59,7 @@ function printBoard(board) {
 
 function makeMove(board, position, symbol) {
   //const pos = position - 1;
-  const reversedPosition = 10 - position; 
-  const pos = reversedPosition - 1; 
+  const pos = 9 - position;
   if (board[pos] !== ` ${player1}` && board[pos] !== ` ${player2}` && board[pos] !== ` ${computer}`) {
     board[pos] = ` ${symbol}`;
     return true;
