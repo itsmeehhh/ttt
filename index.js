@@ -231,7 +231,7 @@ function handleMultiplayerMove(sessionId, player, move) {
     } else {
       botly.sendText({
         id: session.player1,
-        text: ` اثق في قدراتك\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! ( إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك ...'}`
+        text: ` ركز جيدا ❤️\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! ( إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك ...'}`
       });
       botly.sendText({
         id: session.player2,
