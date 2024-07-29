@@ -296,7 +296,7 @@ function endMultiplayerGame(sessionId) {
                             } else {
     botly.sendText({
       id: senderId,
-      text: 'المكان محدد مسبقا ، إختر مكانا اخر بين 1 و 9.'
+      text: 'الرجاء الإختيار بين 1 الى 9 فقط 😠'
           });
             }
                             } else {
