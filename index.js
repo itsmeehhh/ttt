@@ -379,7 +379,7 @@ function endMultiplayerGame(sessionId) {
                setTimeout(() => {
                                   botly.sendText({
          id: senderId,
-         text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب ',
+         text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ',
                               quick_replies: [
                               botly.createQuickReply('اللعب مع البوت', 'RESTART'),
                              botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
