@@ -251,7 +251,7 @@ function handleMultiplayerMove(sessionId, player, move) {
   const currentPlayer = player === session.player1 ? player1 : player2;
 
   if (makeMove(board, move, currentPlayer)) {
-    resetMultiplayerSessionTimeout(sessionId); // إعادة ضبط المؤقت عند كل حركة
+    resetMultiplayerSessionTimeout(sessionId); 
 
     const nextPlayer = player === session.player1 ? session.player2 : session.player1;
 
@@ -377,12 +377,8 @@ function invalidateInviteCode(sessionId) {
 
                                      // Handle invite code
        const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text && gameSessions[id].player2 === null);
-
-       // عندما ينضم اللاعب الثاني إلى اللعبة عبر كود الدعوة
        if (sessionId) {
            gameSessions[sessionId].player2 = senderId;
-
-           // بدء مؤقت الجلسة عند انضمام اللاعب الثاني
            resetMultiplayerSessionTimeout(sessionId);
 
            botly.sendText({
