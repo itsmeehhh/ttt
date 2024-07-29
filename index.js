@@ -268,7 +268,21 @@ function endMultiplayerGame(sessionId) {
                                      ]
                                    });
                                  }, 1000); // Wait 1 second before sending the button
-                               }
+ }
+function invalidateInviteCode(sessionId) {
+  const session = gameSessions[sessionId];
+  if (session && session.player2 === null) {
+    delete gameSessions[sessionId];
+   botly.sendText({
+        id: senderId,
+        text: 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا',
+        quick_replies: [
+          botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+          botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+        ]
+      });
+  }
+}
 
       botly.on("message", async (senderId, message, data) => {
      botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
@@ -403,24 +417,28 @@ function endMultiplayerGame(sessionId) {
          } else if (postback == "RESTART") {
                     startGame(senderId);
          } else if (postback == "INVITE_FRIEND") {
-         const inviteCode = generateInviteCode();
-        gameSessions[inviteCode] = {
-        player1: senderId,
-        player2: null,
-        board: initBoard(),
-        currentPlayer: senderId,
-       inviteCode: inviteCode
-               };
-       botly.sendText({
-         id: senderId,
-         text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني `
-                         });
-        setTimeout(() => {
-        botly.sendText({
-           id: senderId,
-           text: `${inviteCode}`
-                  });}, 1000)
-                        }
+            const inviteCode = generateInviteCode();
+            gameSessions[inviteCode] = {
+              player1: senderId,
+              player2: null,
+              board: initBoard(),
+              currentPlayer: senderId,
+              inviteCode: inviteCode
+            };
+            botly.sendText({
+              id: senderId,
+              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني `
+            });
+            setTimeout(() => {
+              botly.sendText({
+                id: senderId,
+                text: `${inviteCode}`
+              });
+            }, 1000);
+            setTimeout(() => {
+              invalidateInviteCode(inviteCode);
+            }, 5 * 60 * 1000);
+          }
 
       botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
