@@ -254,15 +254,17 @@ function handleMultiplayerMove(sessionId, player, move) {
     resetMultiplayerSessionTimeout(sessionId); 
 
     const nextPlayer = player === session.player1 ? session.player2 : session.player1;
+    const currentMoveText = `لقد اخترت المكان ${move}`;
+    const friendMoveText = `صديقك اختار المكان ${move}`;
 
     if (checkWin(board, currentPlayer)) {
       botly.sendText({
         id: session.player1,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
       });
       botly.sendText({
         id: session.player2,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
       });
       endMultiplayerGame(sessionId);
     } else if (checkDraw(board)) {
@@ -277,21 +279,22 @@ function handleMultiplayerMove(sessionId, player, move) {
       endMultiplayerGame(sessionId);
     } else {
       botly.sendText({
-          id: session.player1,
-          text: `انت اخترت المكان ${move}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! ( إختر بين 1-9)' : 'اختار صديقك المكان ' + move + '\nفي إنتظار ان يلعب صديقك...'}`
-        });
-        botly.sendText({
-          id: session.player2,
-          text: `صديقك اختار المكان ${move}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'انت اخترت المكان ' + move + '\nفي إنتظار أن يلعب صديقك...'}`
-        });
-        session.currentPlayer = nextPlayer;
-      }
+        id: session.player1,
+        text: `${player === session.player1 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار أن يلعب صديقك...'}`
+      });
+      botly.sendText({
+        id: session.player2,
+        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار أن يلعب صديقك...'}`
+      });
+      session.currentPlayer = nextPlayer;
+    }
   } else {
     botly.sendText({
       id: player,
       text: 'المكان محدد مسبقا، حدد مكانا اخر! (إختر بين 1-9)'
     });
   }
+
 }
 
 
