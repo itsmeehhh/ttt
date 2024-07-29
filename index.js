@@ -314,7 +314,8 @@ function endMultiplayerGame(sessionId) {
     } else if (text.startsWith("MOROCCOAI") && text.length === 17) {
 
                                      // Handle invite code
-     const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text);
+       const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text && gameSessions[id].player2 === null);
+
     if (sessionId) {
                                        gameSessions[sessionId].player2 = senderId;
      botly.sendText({
