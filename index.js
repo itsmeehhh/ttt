@@ -221,11 +221,11 @@ function handleMultiplayerMove(sessionId, player, move) {
     } else if (checkDraw(board)) {
       botly.sendText({
         id: session.player1,
-        text: `اووه لعبة جيدة 😉\n${printBoard(board)}\nتعادل 😂!`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\nتعادل 😂!`
       });
       botly.sendText({
         id: session.player2,
-        text: `اووه لعبة جيدة 😉\n${printBoard(board)}\nتعادل 😂!`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\nتعادل 😂!`
       });
       endMultiplayerGame(sessionId);
     } else {
