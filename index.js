@@ -242,7 +242,7 @@ function resetMultiplayerSessionTimeout(sessionId) {
   }
   session.timeout = setTimeout(() => {
     invalidateMultiplayerSession(sessionId);
-  }, 1 * 60 * 1000); // 5 دقائق
+  }, 5 * 60 * 1000); // 5 دقائق
 }
 
 function handleMultiplayerMove(sessionId, player, move) {
@@ -378,34 +378,41 @@ function invalidateInviteCode(sessionId) {
                                      // Handle invite code
        const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text && gameSessions[id].player2 === null);
 
-    if (sessionId) {
-                                       gameSessions[sessionId].player2 = senderId;
-     botly.sendText({
-     id: gameSessions[sessionId].player1,
-    text: 'قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\n رمزك هو : ❌\nرمز صديقك : ⚪'
-                       });
-      botly.sendText({
-         id: senderId,
-         text: 'قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو : ⚪\nرمز صديقك :❌'
-                          });
-      setTimeout(() => {
-       botly.sendText({
-         id: gameSessions[sessionId].player1,
-        text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
-             });
-      }, 1000)
-      setTimeout(() => {
-      botly.sendText({
-         id: senderId,
-         text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
-                                       });}, 1000)
+       // عندما ينضم اللاعب الثاني إلى اللعبة عبر كود الدعوة
+       if (sessionId) {
+           gameSessions[sessionId].player2 = senderId;
+
+           // بدء مؤقت الجلسة عند انضمام اللاعب الثاني
+           resetMultiplayerSessionTimeout(sessionId);
+
+           botly.sendText({
+               id: gameSessions[sessionId].player1,
+               text: 'قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\n رمزك هو : ❌\nرمز صديقك : ⚪'
+           });
+           botly.sendText({
+               id: senderId,
+               text: 'قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو : ⚪\nرمز صديقك :❌'
+           });
+           setTimeout(() => {
+               botly.sendText({
+                   id: gameSessions[sessionId].player1,
+                   text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
+               });
+           }, 1000);
+           setTimeout(() => {
+               botly.sendText({
+                   id: senderId,
+                   text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
+               });
+           }, 1000);
        } else {
-       botly.sendText({
-        id: senderId,
-         text: 'كود الدعوة غير صالح.'
-                           });
-                              }
-                             } else {
+           botly.sendText({
+               id: senderId,
+               text: 'كود الدعوة غير صالح.'
+           });
+       }
+
+          } else {
      botly.sendText({
       id: senderId,
       text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
