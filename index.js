@@ -34,7 +34,7 @@ app.use("/webhook", botly.router());
 
 function generateInviteCode() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'MOROCCOAI-';
+  let result = 'MOROCCOAI';
   for (let i = 0; i < 8; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
@@ -305,7 +305,7 @@ function endMultiplayerGame(sessionId) {
        text: 'لم يأتي دورك بعد، من فضلك انتظر حتى يلعب صديقك.'
                             });
                            }
-    } else if (text.startsWith("MOROCCOAI-") && text.length === 18) {
+    } else if (text.startsWith("MOROCCOAI") && text.length === 17) {
 
                                      // Handle invite code
      const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text);
