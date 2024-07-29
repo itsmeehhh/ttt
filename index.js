@@ -166,7 +166,7 @@ function handlePlayerMove(senderId, move) {
       endGame(senderId, 'هزمتني 🙄، المرة القادمة سأهزمك😏!');
       return;
     } else if (checkDraw(board)) {
-      endGame(senderId, "تعادل 😂، لعبة جيدة");
+      endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها مجددا ❤️");
       return;
     }
 
@@ -176,7 +176,7 @@ function handlePlayerMove(senderId, move) {
       if (checkWin(board, computer)) {
         endGame(senderId, 'هزمتك 😂، حاول المرة القادمة ان تهزمني😉');
       } else if (checkDraw(board)) {
-        endGame(senderId, "تعادل 😂، لعبة جيدة");
+        endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها مجددا ❤️");
       } else {
         botly.sendText({
           id: senderId,
