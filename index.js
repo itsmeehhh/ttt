@@ -197,6 +197,53 @@ function handlePlayerMove(senderId, move) {
   }
 }
 
+function invalidateMultiplayerSession(sessionId) {
+  const session = gameSessions[sessionId];
+  if (session) {
+    delete gameSessions[sessionId];
+    botly.sendText({
+      id: session.player1,
+      text: 'لقد انتهت اللعبة بسبب انكما لم تكملا اللعب 😐'
+    }, function() {
+      setTimeout(() => {
+        botly.sendText({
+          id: session.player1,
+          text: 'يمكنك إعادة اللعب',
+          quick_replies: [
+            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+          ]
+        });
+      }, 1000);
+    });
+
+    botly.sendText({
+      id: session.player2,
+      text: 'تم انهاء اللعبة بسبب انكما لم تكملا اللعب 😐'
+    }, function() {
+      setTimeout(() => {
+        botly.sendText({
+          id: session.player2,
+          text: 'يمكنك إعادة اللعب',
+          quick_replies: [
+            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+          ]
+        });
+      }, 1000);
+    });
+  }
+}
+
+function resetMultiplayerSessionTimeout(sessionId) {
+  const session = gameSessions[sessionId];
+  if (session.timeout) {
+    clearTimeout(session.timeout);
+  }
+  session.timeout = setTimeout(() => {
+    invalidateMultiplayerSession(sessionId);
+  }, 5 * 60 * 1000); // 5 دقائق
+}
 
 function handleMultiplayerMove(sessionId, player, move) {
   const session = gameSessions[sessionId];
@@ -204,6 +251,8 @@ function handleMultiplayerMove(sessionId, player, move) {
   const currentPlayer = player === session.player1 ? player1 : player2;
 
   if (makeMove(board, move, currentPlayer)) {
+    resetMultiplayerSessionTimeout(sessionId); // إعادة ضبط المؤقت عند كل حركة
+
     const nextPlayer = player === session.player1 ? session.player2 : session.player1;
 
     if (checkWin(board, currentPlayer)) {
@@ -244,6 +293,7 @@ function handleMultiplayerMove(sessionId, player, move) {
     });
   }
 }
+
 
 function endMultiplayerGame(sessionId) {
   const session = gameSessions[sessionId];
