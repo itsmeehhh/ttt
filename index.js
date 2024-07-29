@@ -264,7 +264,7 @@ function handleMultiplayerMove(sessionId, player, move) {
       });
       botly.sendText({
         id: session.player2,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player1 ? 'صدي4قك الفائز 🥳!' : 'أن3ت الفائز 🥳!'}`
+        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === session.player2 ? 'صدي4قك الفائز 🥳!' : 'صد3يقك الفائز 🥳!'}`
       });
       endMultiplayerGame(sessionId);
     } else if (checkDraw(board)) {
