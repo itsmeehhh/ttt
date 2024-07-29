@@ -44,7 +44,7 @@ function generateInviteCode() {
 
 
 function initBoard() {
-  return ['  1  ','  2  ','  3  ','  4  ','  5  ','  6  ','  7  ','  8  ','  9  '];
+  return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
 }
 
 function printBoard(board) {
