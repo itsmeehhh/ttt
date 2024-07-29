@@ -280,11 +280,11 @@ function handleMultiplayerMove(sessionId, player, move) {
     } else {
       botly.sendText({
         id: session.player1,
-        text: `${player === session.player1 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار أن يلعب صديقك...'}`
+        text: `${player === session.player1 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
       });
       botly.sendText({
         id: session.player2,
-        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار أن يلعب صديقك...'}`
+        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
       });
       session.currentPlayer = nextPlayer;
     }
