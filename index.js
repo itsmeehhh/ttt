@@ -482,17 +482,19 @@ function invalidateInviteCode(sessionId) {
               currentPlayer: senderId,
               inviteCode: inviteCode
             };
+        setTimeout(() => {
             botly.sendText({
               id: senderId,
-              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق`
+              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق او يمكنك انهاؤه عبر هذا الزر`
             });
+        }, 1000);
             setTimeout(() => {
               botly.sendText({
                 id: senderId,
                 text: `${inviteCode}`,
                 quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
               });
-            }, 1000);
+            }, 2000);
             setTimeout(() => {
               invalidateInviteCode(inviteCode);
             }, 5 * 60 * 1000);
