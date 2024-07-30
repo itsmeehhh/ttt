@@ -248,56 +248,91 @@ function resetMultiplayerSessionTimeout(sessionId) {
 }
 
 function handleMultiplayerMove(sessionId, player, move) {
-  const session = gameSessions[sessionId];
-  const board = session.board;
-  const currentPlayer = player === session.player1 ? player1 : player2;
+    const session = gameSessions[sessionId];
+    const board = session.board;
+    const currentPlayer = player === session.player1 ? player1 : player2;
 
-  if (makeMove(board, move, currentPlayer)) {
-    resetMultiplayerSessionTimeout(sessionId); 
+    if (makeMove(board, move, currentPlayer)) {
+        resetMultiplayerSessionTimeout(sessionId); 
 
-    const nextPlayer = player === session.player1 ? session.player2 : session.player1;
-    const currentMoveText = `لقد اخترت المكان ${move}`;
-    const friendMoveText = `صديقك اختار المكان ${move}`;
+        const nextPlayer = player === session.player1 ? session.player2 : session.player1;
+        const currentMoveText = `لقد اخترت المكان ${move}`;
+        const friendMoveText = `صديقك اختار المكان ${move}`;
 
-    if (checkWin(board, currentPlayer)) {
-      botly.sendText({
-        id: session.player1,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
-      });
-      botly.sendText({
-        id: session.player2,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
-      });
-  endMultiplayerGame(sessionId);
-    } else if (checkDraw(board)) {
-      botly.sendText({
-        id: session.player1,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\nتعادل 😂!`
-      });
-      botly.sendText({
-        id: session.player2,
-        text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\nتعادل 😂!`
-      });
-      endMultiplayerGame(sessionId);
+        if (checkWin(board, currentPlayer)) {
+            session.scores[player === session.player1 ? 'player1' : 'player2'] += 1;
+            if (session.currentRound < session.rounds) {
+                session.currentRound += 1;
+                session.board = initBoard();
+                botly.sendText({
+                    id: session.player1,
+                    text: `الجولة ${session.currentRound - 1} انتهت بفوز ${currentPlayer === player1 ? 'لك' : 'لصديقك'}.\nنقاطك: ${session.scores.player1}\nنقاط صديقك: ${session.scores.player2}\n-----------\nالجولة ${session.currentRound} تبدأ الآن!`
+                });
+                botly.sendText({
+                    id: session.player2,
+                    text: `الجولة ${session.currentRound - 1} انتهت بفوز ${currentPlayer === player1 ? 'لصديقك' : 'لك'}.\nنقاطك: ${session.scores.player2}\nنقاط صديقك: ${session.scores.player1}\n-----------\nالجولة ${session.currentRound} تبدأ الآن!`
+                });
+                botly.sendText({
+                    id: session.currentPlayer,
+                    text: `حان دورك! (إختر بين 1-9)`
+                });
+            } else {
+                endMultiplayerGame(sessionId);
+                botly.sendText({
+                    id: session.player1,
+                    text: `انتهت اللعبة! النتائج النهائية:\nنقاطك: ${session.scores.player1}\nنقاط صديقك: ${session.scores.player2}\n${session.scores.player1 > session.scores.player2 ? 'أنت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+                });
+                botly.sendText({
+                    id: session.player2,
+                    text: `انتهت اللعبة! النتائج النهائية:\nنقاطك: ${session.scores.player2}\nنقاط صديقك: ${session.scores.player1}\n${session.scores.player2 > session.scores.player1 ? 'أنت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+                });
+            }
+        } else if (checkDraw(board)) {
+            if (session.currentRound < session.rounds) {
+                session.currentRound += 1;
+                session.board = initBoard();
+                botly.sendText({
+                    id: session.player1,
+                    text: `الجولة ${session.currentRound - 1} انتهت بالتعادل.\nنقاطك: ${session.scores.player1}\nنقاط صديقك: ${session.scores.player2}\n-----------\nالجولة ${session.currentRound} تبدأ الآن!`
+                });
+                botly.sendText({
+                    id: session.player2,
+                    text: `الجولة ${session.currentRound - 1} انتهت بالتعادل.\nنقاطك: ${session.scores.player2}\nنقاط صديقك: ${session.scores.player1}\n-----------\nالجولة ${session.currentRound} تبدأ الآن!`
+                });
+                botly.sendText({
+                    id: session.currentPlayer,
+                    text: `حان دورك! (إختر بين 1-9)`
+                });
+            } else {
+                endMultiplayerGame(sessionId);
+                botly.sendText({
+                    id: session.player1,
+                    text: `انتهت اللعبة! النتائج النهائية:\nنقاطك: ${session.scores.player1}\nنقاط صديقك: ${session.scores.player2}\n${session.scores.player1 > session.scores.player2 ? 'أنت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+                });
+                botly.sendText({
+                    id: session.player2,
+                    text: `انتهت اللعبة! النتائج النهائية:\nنقاطك: ${session.scores.player2}\nنقاط صديقك: ${session.scores.player1}\n${session.scores.player2 > session.scores.player1 ? 'أنت الفائز 🥳!' : 'صديقك الفائز 🥳!'}`
+                });
+            }
+        } else {
+            botly.sendText({
+                id: session.player1,
+                text: `${player === session.player1 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
+            });
+            botly.sendText({
+                id: session.player2,
+                text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
+            });
+            session.currentPlayer = nextPlayer;
+        }
     } else {
-      botly.sendText({
-        id: session.player1,
-        text: `${player === session.player1 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
-      });
-      botly.sendText({
-        id: session.player2,
-        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
-      });
-      session.currentPlayer = nextPlayer;
+        botly.sendText({
+            id: player,
+            text: 'المكان محدد مسبقا، حدد مكانا اخر! (إختر بين 1-9)'
+        });
     }
-  } else {
-    botly.sendText({
-      id: player,
-      text: 'المكان محدد مسبقا، حدد مكانا اخر! (إختر بين 1-9)'
-    });
-  }
-
 }
+
 
 
 function endMultiplayerGame(sessionId) {
@@ -335,6 +370,39 @@ function invalidateInviteCode(sessionId) {
         ]
       });
   }
+}
+
+function createInviteSession(senderId, rounds) {
+    const inviteCode = generateInviteCode();
+    gameSessions[inviteCode] = {
+        player1: senderId,
+        player2: null,
+        board: initBoard(),
+        currentPlayer: senderId,
+        inviteCode: inviteCode,
+        rounds: rounds,
+        currentRound: 1,
+        scores: { player1: 0, player2: 0 }
+    };
+
+    setTimeout(() => {
+        botly.sendText({
+            id: senderId,
+            text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق او يمكنك إنهاء الدعوة عبر الزر`
+        });
+    }, 1000);
+
+    setTimeout(() => {
+        botly.sendText({
+            id: senderId,
+            text: `${inviteCode}`,
+            quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
+        });
+    }, 2000);
+
+    setTimeout(() => {
+        invalidateInviteCode(inviteCode);
+    }, 5 * 60 * 1000);
 }
 
       botly.on("message", async (senderId, message, data) => {
@@ -474,31 +542,19 @@ function invalidateInviteCode(sessionId) {
          } else if (postback == "RESTART") {
                     startGame(senderId);
          } else if (postback == "INVITE_FRIEND") {
-            const inviteCode = generateInviteCode();
-            gameSessions[inviteCode] = {
-              player1: senderId,
-              player2: null,
-              board: initBoard(),
-              currentPlayer: senderId,
-              inviteCode: inviteCode
-            };
-        setTimeout(() => {
-            botly.sendText({
-              id: senderId,
-              text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق او يمكنك إنهاء الدعوة عبر الزر`
-            });
-        }, 1000);
-            setTimeout(() => {
-              botly.sendText({
-                id: senderId,
-                text: `${inviteCode}`,
-                quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
-              });
-            }, 2000);
-            setTimeout(() => {
-              invalidateInviteCode(inviteCode);
-            }, 5 * 60 * 1000);
-          } else if (postback.startsWith("CANCEL_INVITE_")) {
+           botly.sendText({
+               id: senderId,
+               text: 'اختر نوع اللعبة:',
+               quick_replies: [
+                   botly.createQuickReply('جولة واحدة', 'INVITE_FRIEND_ONE_ROUND'),
+                   botly.createQuickReply('5 جولات', 'INVITE_FRIEND_FIVE_ROUNDS')
+               ]
+           });
+         } else if (postback == "INVITE_FRIEND_ONE_ROUND") {
+           createInviteSession(senderId, 1);
+         } else if (postback == "INVITE_FRIEND_FIVE_ROUNDS") {
+           createInviteSession(senderId, 5);
+         } else if (postback.startsWith("CANCEL_INVITE_")) {
             const inviteCode = postback.split("CANCEL_INVITE_")[1];
             invalidateInviteCode(inviteCode);
           }
