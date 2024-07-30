@@ -375,42 +375,61 @@ function handleMultiplayerMove(sessionId, player, move) {
 
 function endMultiplayerGame(sessionId, endMessage) {
     const session = gameSessions[sessionId];
-    const winner = session.scores.player1 > session.scores.player2 ? session.player1 : session.player2;
-    const loser = session.scores.player1 > session.scores.player2 ? session.player2 : session.player1;
+    const { player1, player2, scores } = session;
+    const { player1: score1, player2: score2 } = scores;
+
     delete gameSessions[sessionId];
-  setTimeout(() => {
-    botly.sendText({
-        id: winner,
-        text: `-------------\nالنتيجة النهائية : \n${endMessage}\nإذن: انت الفائز 🥳!`
-    });
-  }, 1500);
-  setTimeout(() => {
-    botly.sendText({
-        id: loser,
-        text: `-------------\nالنتيجة النهائية :\n${endMessage}\nإذن: صديقك هو الفائز 😔`
-    });
-  }, 1500);
-  setTimeout(() => {
-    botly.sendText({
-        id: winner,
-        text: 'يمكنك إعادة اللعب',
-        quick_replies: [
-            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-        ]
-    });
-  }, 2000);
-  setTimeout(() => {
-    botly.sendText({
-        id: loser,
-        text: 'يمكنك إعادة اللعب',
-        quick_replies: [
-            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-        ]
-    });
-  }, 2000);
+
+    let resultMessage1 = '';
+    let resultMessage2 = '';
+
+    if (score1 > score2) {
+        resultMessage1 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
+        resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
+    } else if (score1 < score2) {
+        resultMessage1 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
+        resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
+    } else {
+        resultMessage1 = resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: هناك تعادل بينكما😌!`;
+    }
+
+    setTimeout(() => {
+        botly.sendText({
+            id: player1,
+            text: resultMessage1
+        });
+    }, 1500);
+
+    setTimeout(() => {
+        botly.sendText({
+            id: player2,
+            text: resultMessage2
+        });
+    }, 1500);
+
+    setTimeout(() => {
+        botly.sendText({
+            id: player1,
+            text: 'يمكنك إعادة اللعب',
+            quick_replies: [
+                botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+                botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+            ]
+        });
+    }, 2000);
+
+    setTimeout(() => {
+        botly.sendText({
+            id: player2,
+            text: 'يمكنك إعادة اللعب',
+            quick_replies: [
+                botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+                botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+            ]
+        });
+    }, 2000);
 }
+
 
 function invalidateInviteCode(sessionId) {
   const session = gameSessions[sessionId];
@@ -561,16 +580,15 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-         } else if (postback == "RESTART") {
-                    startGame(senderId);
-         // تعديل في جزء postback الخاص بـ INVITE_FRIEND
+         } else if (postback == "RESTART") {                 startGame(senderId);
          } else if (postback == "INVITE_FRIEND") {
-             botly.sendText({
-                 id: senderId,
-                 text: 'اختر نوع اللعبة:',
+    botly.sendText({
+         id: senderId,
+        text: 'اختر نوع اللعبة:',
                  quick_replies: [
                      botly.createQuickReply('جولة واحدة', 'INVITE_SINGLE_ROUND'),
                      botly.createQuickReply('5 جولات', 'INVITE_FIVE_ROUNDS'),
+                   botly.createQuickReply('10 جولات', 'INVITE_TEN_ROUNDS'),
                    botly.createQuickReply('رجوع', 'BACK_TO_HOME')
                  ]
              });
@@ -582,7 +600,9 @@ function invalidateInviteCode(sessionId) {
             initiateMultiplayerGame(senderId, 1);
           } else if (postback == "INVITE_FIVE_ROUNDS") {
             initiateMultiplayerGame(senderId, 5);
-          } else if (postback == "BACK_TO_HOME") {
+          } else if (postback == "INVITE_TEN_ROUNDS") {
+        initiateMultiplayerGame(senderId, 10);
+      } else if (postback == "BACK_TO_HOME") {
         setTimeout(() => {
           botly.sendText({
             id: senderId,
