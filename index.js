@@ -264,18 +264,19 @@ function initiateMultiplayerGame(senderId, totalRounds) {
         currentRound: 1,
         scores: { player1: 0, player2: 0 }
     };
-
+  setTimeout(() => {
     botly.sendText({
         id: senderId,
         text: `ارسل هذا الكود الى صديقك، وقل له ان يرسله لي لكي تلعب معه مباشرة\nارسل له رابط الصفحة لكي يراسلني \n\nتنتهي مدة صلاحية الدعوة بعد 5 دقائق او يمكنك إنهاء الدعوة عبر الزر`
     });
-
+}, 1000);
+  setTimeout(() => {
     botly.sendText({
         id: senderId,
         text: `${inviteCode}`,
         quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
     });
-
+  }, 2000);
     setTimeout(() => {
         invalidateInviteCode(inviteCode);
     }, 5 * 60 * 1000);
@@ -296,14 +297,18 @@ function handleMultiplayerMove(sessionId, player, move) {
 
         if (checkWin(board, currentPlayer)) {
             session.scores[currentPlayer === player1 ? 'player1' : 'player2']++;
+          setTimeout(() => {
             botly.sendText({
                 id: session.player1,
                 text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player1 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
             });
+          }, 1500);
+          setTimeout(() => {
             botly.sendText({
                 id: session.player2,
                 text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player2 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
             });
+          }, 1500);
             if (session.currentRound < session.totalRounds) {
                 session.currentRound++;
                 session.board = initBoard();
