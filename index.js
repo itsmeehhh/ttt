@@ -300,13 +300,13 @@ function handleMultiplayerMove(sessionId, player, move) {
      //     setTimeout(() => {
             botly.sendText({
                 id: session.player1,
-                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player1 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
+                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\n`
             });
     //      }, 1000);
          // setTimeout(() => {
             botly.sendText({
                 id: session.player2,
-                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player2 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
+                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\n`
             });
         //  }, 1000);
             if (session.currentRound < session.totalRounds) {
