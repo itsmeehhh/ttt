@@ -180,12 +180,10 @@ function handlePlayerMove(senderId, move) {
       } else if (checkDraw(board)) {
         endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
       } else {
-        setTimeout(() => {
         botly.sendText({
           id: senderId,
           text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1 إلى 9)`
         });
-        }, 1000);
       }
     } else {
       botly.sendText({
