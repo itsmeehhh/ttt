@@ -44,8 +44,9 @@ function generateInviteCode() {
 
 
 function initBoard() {
-  return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
+  return ['3️⃣','2️⃣','1️⃣','6️⃣','5️⃣','4️⃣','7️⃣','8️⃣','9️⃣'];
 }
+
 
 function printBoard(board) {
   return `
@@ -57,14 +58,17 @@ function printBoard(board) {
   `;
 }
 
+
 function makeMove(board, position, symbol) {
-  const pos = position - 1;
+  const posMap = {3: 0, 2: 1, 1: 2, 6: 3, 5: 4, 4: 5, 7: 6, 8: 7, 9: 8};
+  const pos = posMap[position];
   if (board[pos] !== ` ${player1}` && board[pos] !== ` ${player2}` && board[pos] !== ` ${computer}`) {
     board[pos] = ` ${symbol}`;
     return true;
   }
   return false;
 }
+
 
 function checkWin(board, symbol) {
   const winConditions = [
@@ -77,9 +81,11 @@ function checkWin(board, symbol) {
   );
 }
 
+
 function checkDraw(board) {
   return board.every(cell => cell === ` ${player1}` || cell === ` ${player2}`);
 }
+
 
 function startGame(senderId) {
   userBoards[senderId] = initBoard();
@@ -111,7 +117,8 @@ function endGame(senderId, message) {
 function computerMove(board, player1Move) {
   const emptyPositions = board
     .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
+    .filter(value => value !== null)
+    .map(value => ({3: 1, 2: 2, 1: 3, 6: 4, 5: 5, 4: 6, 7: 7, 8: 8, 9: 9}[value])); // Inverse mapping
 
   if (emptyPositions.length === 0) return null;
 
@@ -133,7 +140,6 @@ function computerMove(board, player1Move) {
 
   if (blockingMove) return blockingMove;
 
-
   const strategicMove = findStrategicMove(board, emptyPositions);
   if (strategicMove) return strategicMove;
 
@@ -141,10 +147,10 @@ function computerMove(board, player1Move) {
 }
 
 
-function findStrategicMove(board, emptyPositions) {
-  const cornerPositions = [1, 3, 7, 9];
-  const edgePositions = [2, 4, 6, 8];
 
+function findStrategicMove(board, emptyPositions) {
+  const cornerPositions = [3, 1, 7, 9]; // Changed to match new positions
+  const edgePositions = [2, 6, 4, 8];  // Changed to match new positions
 
   if (emptyPositions.includes(5)) return 5;
 
@@ -160,8 +166,10 @@ function findStrategicMove(board, emptyPositions) {
 
 
 function handlePlayerMove(senderId, move) {
+  const validMoves = {1: 3, 2: 2, 3: 1, 4: 6, 5: 5, 6: 4, 7: 7, 8: 8, 9: 9};
+  const moveMapped = validMoves[move];
   let board = userBoards[senderId];
-  if (makeMove(board, move, player1)) {
+  if (makeMove(board, moveMapped, player1)) {
     if (checkWin(board, player1)) {
       endGame(senderId, 'هزمتني 🙄، المرة القادمة سأهزمك😏!');
       return;
@@ -170,7 +178,7 @@ function handlePlayerMove(senderId, move) {
       return;
     }
 
-    let computerMovePosition = computerMove(board, move);
+    let computerMovePosition = computerMove(board, moveMapped);
     if (computerMovePosition) {
       makeMove(board, computerMovePosition, computer);
       if (checkWin(board, computer)) {
@@ -192,10 +200,11 @@ function handlePlayerMove(senderId, move) {
   } else {
     botly.sendText({
       id: senderId,
-      text: 'المكان محدد مسبقا, حاول تحديد مكان اخر! (إختر بين 1-9)'
+      text: 'المكان محدد مسبقا، حاول تحديد مكان اخر! (إختر بين 1-9)'
     });
   }
 }
+
 
 function invalidateMultiplayerSession(sessionId) {
   const session = gameSessions[sessionId];
@@ -246,12 +255,14 @@ function resetMultiplayerSessionTimeout(sessionId) {
 }
 
 function handleMultiplayerMove(sessionId, player, move) {
+  const validMoves = {1: 3, 2: 2, 3: 1, 4: 6, 5: 5, 6: 4, 7: 7, 8: 8, 9: 9};
+  const moveMapped = validMoves[move];
   const session = gameSessions[sessionId];
   const board = session.board;
   const currentPlayer = player === session.player1 ? player1 : player2;
 
-  if (makeMove(board, move, currentPlayer)) {
-    resetMultiplayerSessionTimeout(sessionId); 
+  if (makeMove(board, moveMapped, currentPlayer)) {
+    resetMultiplayerSessionTimeout(sessionId);
 
     const nextPlayer = player === session.player1 ? session.player2 : session.player1;
     const currentMoveText = `لقد اخترت المكان ${move}`;
@@ -266,7 +277,7 @@ function handleMultiplayerMove(sessionId, player, move) {
         id: session.player2,
         text: `اووه كانت لعبة جيدة بينكما 😉\n${printBoard(board)}\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}`
       });
-  endMultiplayerGame(sessionId);
+      endMultiplayerGame(sessionId);
     } else if (checkDraw(board)) {
       botly.sendText({
         id: session.player1,
@@ -284,18 +295,8 @@ function handleMultiplayerMove(sessionId, player, move) {
       });
       botly.sendText({
         id: session.player2,
-        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يلعب صديقك...'}`
-      });
-      session.currentPlayer = nextPlayer;
-    }
-  } else {
-    botly.sendText({
-      id: player,
-      text: 'المكان محدد مسبقا، حدد مكانا اخر! (إختر بين 1-9)'
-    });
-  }
+        text: `${player === session.player2 ? currentMoveText : friendMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1 الى 9 )' : 'في إنتظار أن يل
 
-}
 
 
 function endMultiplayerGame(sessionId) {
