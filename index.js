@@ -349,31 +349,6 @@ function endMultiplayerGame(sessionId) {
   });
   delete gameSessions[sessionId];
 }
-
-
-
-function endMultiplayerGame(sessionId) {
-  const session = gameSessions[sessionId];
-  delete gameSessions[sessionId];
-  setTimeout(() => {
-    botly.sendText({
-      id: session.player1,
-      text: 'إنتهت اللعبة، يمكنك بدأ لعبة جديدة عبر اختيار احد الازرار',
-      quick_replies: [
-        botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-        botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-      ]
-    });
-    botly.sendText({
-      id: session.player2,
-      text: 'إنتهت اللعبة، يمكنك بدأ لعبة جديدة عبر اختيار احد الازرار',
-      quick_replies: [
-        botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-        botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-                                     ]
-                                   });
-                                 }, 1000);
- }
 function invalidateInviteCode(sessionId) {
   const session = gameSessions[sessionId];
   if (session && session.player2 === null) {
