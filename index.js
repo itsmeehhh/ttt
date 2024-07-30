@@ -435,6 +435,7 @@ function invalidateInviteCode(sessionId) {
   const session = gameSessions[sessionId];
   if (session && session.player2 === null) {
     delete gameSessions[sessionId];
+    setTimeout(() => {
    botly.sendText({
         id: session.player1,
         text: 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا',
@@ -443,6 +444,7 @@ function invalidateInviteCode(sessionId) {
           botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
         ]
       });
+    }, 1000);
   }
 }
 
@@ -582,9 +584,10 @@ function invalidateInviteCode(sessionId) {
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
          } else if (postback == "RESTART") {                 startGame(senderId);
          } else if (postback == "INVITE_FRIEND") {
+  setTimeout(() => {
     botly.sendText({
          id: senderId,
-        text: 'اختر نوع اللعبة:',
+        text: 'ما عدد الجولات التي تريد؟',
                  quick_replies: [
                      botly.createQuickReply('جولة واحدة', 'INVITE_SINGLE_ROUND'),
                      botly.createQuickReply('5 جولات', 'INVITE_FIVE_ROUNDS'),
@@ -592,7 +595,7 @@ function invalidateInviteCode(sessionId) {
                    botly.createQuickReply('رجوع', 'BACK_TO_HOME')
                  ]
              });
-
+  }, 1000);
           } else if (postback.startsWith("CANCEL_INVITE_")) {
             const inviteCode = postback.split("CANCEL_INVITE_")[1];
             invalidateInviteCode(inviteCode);
