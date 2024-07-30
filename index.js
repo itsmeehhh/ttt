@@ -384,13 +384,13 @@ function endMultiplayerGame(sessionId, endMessage) {
     let resultMessage2 = '';
 
     if (score1 > score2) {
-        resultMessage1 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
-        resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
+        resultMessage1 = `--------------------\nالنتيجة النهائية\n--------------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
+        resultMessage2 = `--------------------\nالنتيجة النهائية\n--------------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
     } else if (score1 < score2) {
-        resultMessage1 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
-        resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
+        resultMessage1 = `--------------------\nالنتيجة النهائية\n--------------------\n${endMessage}\nإذن: صديقك هو الفائز 😔`;
+        resultMessage2 = `--------------------\nالنتيجة النهائية\n--------------------\n${endMessage}\nإذن: انت الفائز 🥳!`;
     } else {
-        resultMessage1 = resultMessage2 = `----------------\nالنتيجة النهائية\n----------------\n${endMessage}\nإذن: هناك تعادل بينكما😌!`;
+        resultMessage1 = resultMessage2 = `--------------------\nالنتيجة النهائية\n--------------------\n${endMessage}\nإذن: هناك تعادل بينكما😌!`;
     }
 
     setTimeout(() => {
@@ -618,39 +618,29 @@ function invalidateInviteCode(sessionId) {
         }, 1000); 
           }
 
-      botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
+botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
-
-      botly.setGetStarted({pageId: PageID, payload: "GET_STARTED"});
+     botly.setGetStarted({pageId: PageID, payload: "GET_STARTED"});
       botly.setGreetingText({
       pageId: PageID,
      greeting: [
-                 {
-                 locale: "default",
-                 text: "tic tac toe"
-                            }
-                                 ]
-                               });
+       {
+        locale: "default",
+        text: "tic tac toe"
+           }]});
    botly.setPersistentMenu({
    pageId: PageID,
   menu: [
     {
 locale: "default",
 composer_input_disabled: false,
-                call_to_actions: [
-                                       {
+                call_to_actions: [{
         type:  "web_url",
         title: "صفحة المطور 🇲🇦😄",
         url:   "fb.com/Morocco.Openai/",
        webview_height_ratio: "full"
-            }
-       ]
-    }
-     ]
-    });
-
-  const port = 8080;
-
+            }]}]});
+const port = 8080;
  app.listen(port, () => {
  console.log(`Server running on port ${port}`);
                                });
