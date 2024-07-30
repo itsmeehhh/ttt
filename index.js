@@ -302,13 +302,13 @@ function handleMultiplayerMove(sessionId, player, move) {
                 id: session.player1,
                 text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player1 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
             });
-          }, 1500);
+          }, 1000);
           setTimeout(() => {
             botly.sendText({
                 id: session.player2,
                 text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n${currentPlayer === player2 ? 'تابع هكذا لكي تفوز على صديقك' : 'حاول المرة القادمة ان تفوز على صديقك'}`
             });
-          }, 1500);
+          }, 1000);
             if (session.currentRound < session.totalRounds) {
                 session.currentRound++;
                 session.board = initBoard();
@@ -370,16 +370,19 @@ function endMultiplayerGame(sessionId, endMessage) {
     const winner = session.scores.player1 > session.scores.player2 ? session.player1 : session.player2;
     const loser = session.scores.player1 > session.scores.player2 ? session.player2 : session.player1;
     delete gameSessions[sessionId];
-
+  setTimeout(() => {
     botly.sendText({
         id: winner,
         text: `لقد ربحت اللعبة!\n${endMessage}\n-----------\nاللعبة انتهت! النتائج:\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\nإذن: انت الفائز النهائي 🥳!`
     });
+  }, 1500);
+  setTimeout(() => {
     botly.sendText({
         id: loser,
         text: `لقد خسرت اللعبة!\n${endMessage}\n-----------\nاللعبة انتهت! النتائج:\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}\nإذن: صديقك هو الفائز النهائي 😔`
     });
-
+  }, 1500);
+  setTimeout(() => {
     botly.sendText({
         id: winner,
         text: 'يمكنك إعادة اللعب',
@@ -388,7 +391,8 @@ function endMultiplayerGame(sessionId, endMessage) {
             botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
         ]
     });
-
+  }, 2000);
+  setTimeout(() => {
     botly.sendText({
         id: loser,
         text: 'يمكنك إعادة اللعب',
@@ -397,6 +401,7 @@ function endMultiplayerGame(sessionId, endMessage) {
             botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
         ]
     });
+  }, 2000);
 }
 
 
