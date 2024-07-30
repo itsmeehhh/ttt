@@ -92,6 +92,7 @@ function startGame(senderId) {
 }
 
 function endGame(senderId, message) {
+  const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId);
   const session = Object.values(gameSessions).find(session => session.player1 === senderId || session.player2 === senderId);
   if (session && session.isBestOfFive) {
     session.scores[senderId === session.player1 ? 'player1' : 'player2'] += 1;
