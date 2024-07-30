@@ -306,7 +306,7 @@ function handleMultiplayerMove(sessionId, player, move) {
          // setTimeout(() => {
             botly.sendText({
                 id: session.player2,
-                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\n`
+                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}\n`
             });
         //  }, 1000);
             if (session.currentRound < session.totalRounds) {
@@ -330,11 +330,11 @@ function handleMultiplayerMove(sessionId, player, move) {
         } else if (checkDraw(board)) {
             botly.sendText({
                 id: session.player1,
-                text: `انتهت الجولة ${session.currentRound} بتعادل 😂!\n${printBoard(board)}`
+                text: `انتهت الجولة ${session.currentRound} بتعادل 😂!\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}`
             });
             botly.sendText({
                 id: session.player2,
-                text: `انتهت الجولة ${session.currentRound} بتعادل 😂!\n${printBoard(board)}`
+                text: `انتهت الجولة ${session.currentRound} بتعادل 😂!\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}`
             });
             if (session.currentRound < session.totalRounds) {
                 session.currentRound++;
@@ -545,7 +545,7 @@ function invalidateInviteCode(sessionId) {
               subtitle: "tic tac toe",
               buttons: [
               botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
-                    ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
+                    ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL}); 
 
                setTimeout(() => {
                                   botly.sendText({
@@ -573,7 +573,8 @@ function invalidateInviteCode(sessionId) {
                  text: 'اختر نوع اللعبة:',
                  quick_replies: [
                      botly.createQuickReply('جولة واحدة', 'INVITE_SINGLE_ROUND'),
-                     botly.createQuickReply('5 جولات', 'INVITE_FIVE_ROUNDS')
+                     botly.createQuickReply('5 جولات', 'INVITE_FIVE_ROUNDS'),
+                   botly.createQuickReply('رجوع', 'BACK_TO_HOME')
                  ]
              });
 
@@ -584,6 +585,17 @@ function invalidateInviteCode(sessionId) {
             initiateMultiplayerGame(senderId, 1);
           } else if (postback == "INVITE_FIVE_ROUNDS") {
             initiateMultiplayerGame(senderId, 5);
+          } else if (postback == "BACK_TO_HOME") {
+        setTimeout(() => {
+          botly.sendText({
+            id: senderId,
+            text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق',
+            quick_replies: [
+              botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+              botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+            ]
+          });
+        }, 1000); 
           }
 
       botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
