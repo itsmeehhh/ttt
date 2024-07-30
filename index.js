@@ -356,6 +356,7 @@ function invalidateInviteCode(sessionId) {
       const session = gameSessions[sessionId];
   //
        if (session.player2 === null) {
+         const inviteCode = postback.split("CANCEL_INVITE_")[1];
          botly.sendText({
            id: senderId,
            text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة',
