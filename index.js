@@ -300,13 +300,13 @@ function handleMultiplayerMove(sessionId, player, move) {
      //     setTimeout(() => {
             botly.sendText({
                 id: session.player1,
-                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز 🥳!' : 'صديقك الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\n`
+                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'انت الفائز فيها 🥳!' : 'صديقك الفائز فيها 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\n`
             });
     //      }, 1000);
          // setTimeout(() => {
             botly.sendText({
                 id: session.player2,
-                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز 🥳!' : 'انت الفائز 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}\n`
+                text: `انتهت الجولة ${session.currentRound}!\n${currentPlayer === player1 ? 'صديقك الفائز فيها 🥳!' : 'انت الفائز فيها 🥳!'}\n${printBoard(board)}\n------------\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}\n`
             });
         //  }, 1000);
             if (session.currentRound < session.totalRounds) {
@@ -381,13 +381,13 @@ function endMultiplayerGame(sessionId, endMessage) {
   setTimeout(() => {
     botly.sendText({
         id: winner,
-        text: `لقد ربحت اللعبة!\n${endMessage}\n-----------\nاللعبة انتهت! النتائج:\nنقاطك: ${session.scores.player1}, نقاط صديقك: ${session.scores.player2}\nإذن: انت الفائز النهائي 🥳!`
+        text: `-------------\nالنتيجة النهائية : \n${endMessage}\nإذن: انت الفائز 🥳!`
     });
   }, 1500);
   setTimeout(() => {
     botly.sendText({
         id: loser,
-        text: `لقد خسرت اللعبة!\n${endMessage}\n-----------\nاللعبة انتهت! النتائج:\nنقاطك: ${session.scores.player2}, نقاط صديقك: ${session.scores.player1}\nإذن: صديقك هو الفائز النهائي 😔`
+        text: `-------------\nالنتيجة النهائية :\n${endMessage}\nإذن: صديقك هو الفائز 😔`
     });
   }, 1500);
   setTimeout(() => {
@@ -411,9 +411,6 @@ function endMultiplayerGame(sessionId, endMessage) {
     });
   }, 2000);
 }
-
-
-
 
 function invalidateInviteCode(sessionId) {
   const session = gameSessions[sessionId];
