@@ -83,10 +83,12 @@ function checkDraw(board) {
 
 function startGame(senderId) {
   userBoards[senderId] = initBoard();
+  setTimeout(() => {
   botly.sendText({
     id: senderId,
     text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
   });
+  }, 1000);
 }
 
 function endGame(senderId, message) {
@@ -178,10 +180,12 @@ function handlePlayerMove(senderId, move) {
       } else if (checkDraw(board)) {
         endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
       } else {
+        setTimeout(() => {
         botly.sendText({
           id: senderId,
-          text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1-9)`
+          text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1 إلى 9)`
         });
+        }, 1000);
       }
     } else {
       botly.sendText({
