@@ -358,7 +358,8 @@ function invalidateInviteCode(sessionId) {
        if (session.player2 === null) {
          botly.sendText({
            id: senderId,
-           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة'
+           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة',
+           quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
          });
  } else if (session.currentPlayer === senderId) {
       const move = parseInt(text);
@@ -486,12 +487,16 @@ function invalidateInviteCode(sessionId) {
             setTimeout(() => {
               botly.sendText({
                 id: senderId,
-                text: `${inviteCode}`
+                text: `${inviteCode}`,
+                quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${inviteCode}`)]
               });
             }, 1000);
             setTimeout(() => {
               invalidateInviteCode(inviteCode);
             }, 5 * 60 * 1000);
+          } else if (postback.startsWith("CANCEL_INVITE_")) {
+            const inviteCode = postback.split("CANCEL_INVITE_")[1];
+            invalidateInviteCode(inviteCode);
           }
 
       botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
