@@ -356,10 +356,10 @@ function invalidateInviteCode(sessionId) {
       const session = gameSessions[sessionId];
   //
        if (session.player2 === null) {
-         
          botly.sendText({
            id: senderId,
-           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة'
+           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة',
+           quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${sessionId}`)]
          });
  } else if (session.currentPlayer === senderId) {
       const move = parseInt(text);
