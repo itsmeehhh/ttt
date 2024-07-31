@@ -664,7 +664,8 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-         } else if (postback == "RESTART") {                 
+         } else if (postback == "RESTART") {  
+        setTimeout(() => {
         botly.sendText({
           id: senderId,
           text: 'اختر مستوى الصعوبة',
@@ -674,6 +675,7 @@ function invalidateInviteCode(sessionId) {
             botly.createQuickReply('صعب', 'HARD_LEVEL')
           ]
         });
+        }, 1000);
       } else if (postback == "EASY_LEVEL") {
         startGame(senderId, 'easy');
       } else if (postback == "MEDIUM_LEVEL") {
