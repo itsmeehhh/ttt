@@ -624,16 +624,7 @@ function invalidateInviteCode(sessionId) {
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
       if (postback == "GET_STARTED") {
-       botly.sendGeneric({id: senderId, elements: {
-              title: "tic tac toe",
-              image_url: "https://telegra.ph/file/77edfdf7b35823caf90f6.jpg",
-              subtitle: "tic tac toe",
-              buttons: [
-              botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
-                    ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL}); 
-
-               setTimeout(() => {
-                                  botly.sendText({
+ setTimeout(() => {                 botly.sendText({
          id: senderId,
          text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ',
                               quick_replies: [
@@ -649,7 +640,8 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-      } else if (postback.payload === 'RESTART') {
+      } else if (postback.payload === 'RESTART') {  
+setTimeout(() => {
         botly.sendText({
             id: senderId,
             text: 'اختر مستوى الصعوبة:',
@@ -659,6 +651,7 @@ function invalidateInviteCode(sessionId) {
                 botly.createQuickReply('صعب', 'LEVEL_HARD')
             ]
         });
+}, 1000);
     } else if (postback == "INVITE_FRIEND") {
   setTimeout(() => {
     botly.sendText({
