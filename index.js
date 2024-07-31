@@ -179,8 +179,8 @@ function minimax(newBoard, player) {
 
   for (let i = 0; i < availSpots.length; i++) {
     const move = {};
-    move.index = newBoard[availSpots[i]];
-    newBoard[availSpots[i]] = ` ${player}`;
+    move.index = newBoard[availSpots[i]]; // حفظ الموقع الحالي
+    newBoard[availSpots[i]] = ` ${player}`; // إجراء الحركة
 
     if (player === computer) {
       const result = minimax(newBoard, player1);
@@ -190,13 +190,13 @@ function minimax(newBoard, player) {
       move.score = result.score;
     }
 
-    newBoard[availSpots[i]] = move.index;
+    newBoard[availSpots[i]] = move.index; // إعادة تعيين الموقع
     moves.push(move);
   }
 
   let bestMove;
   if (player === computer) {
-    let bestScore = -10000;
+    let bestScore = -Infinity;
     for (let i = 0; i < moves.length; i++) {
       if (moves[i].score > bestScore) {
         bestScore = moves[i].score;
@@ -204,7 +204,7 @@ function minimax(newBoard, player) {
       }
     }
   } else {
-    let bestScore = 10000;
+    let bestScore = Infinity;
     for (let i = 0; i < moves.length; i++) {
       if (moves[i].score < bestScore) {
         bestScore = moves[i].score;
