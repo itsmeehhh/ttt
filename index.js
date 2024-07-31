@@ -110,7 +110,23 @@ function endGame(senderId, message) {
   delete userBoards[senderId];
 }
 
-function computerMove(board, player1Move) {
+function computerMove(board, player1Move, difficulty) {
+    const emptyPositions = board
+        .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
+        .filter(value => value !== null);
+
+    if (emptyPositions.length === 0) return null;
+
+    if (difficulty === 'easy') {
+        return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+    } else if (difficulty === 'medium') {
+        return mediumMove(board, player1Move);
+    } else if (difficulty === 'hard') {
+        return minimaxMove(board, computer).index + 1;
+    }
+}
+
+function mediumMove(board, player1Move) {
   const emptyPositions = board
     .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
     .filter(value => value !== null);
@@ -143,6 +159,57 @@ function computerMove(board, player1Move) {
 }
 
 
+function minimaxMove(newBoard, player) {
+    const availSpots = newBoard.filter(s => s !== ` ${player1}` && s !== ` ${computer}`);
+
+    if (checkWin(newBoard, player1)) {
+        return { score: -10 };
+    } else if (checkWin(newBoard, computer)) {
+        return { score: 10 };
+    } else if (availSpots.length === 0) {
+        return { score: 0 };
+    }
+
+    const moves = [];
+    for (let i = 0; i < availSpots.length; i++) {
+        const move = {};
+        move.index = newBoard[availSpots[i]];
+        newBoard[availSpots[i]] = ` ${player}`;
+
+        if (player === computer) {
+            const result = minimaxMove(newBoard, player1);
+            move.score = result.score;
+        } else {
+            const result = minimaxMove(newBoard, computer);
+            move.score = result.score;
+        }
+
+        newBoard[availSpots[i]] = move.index;
+        moves.push(move);
+    }
+
+    let bestMove;
+    if (player === computer) {
+        let bestScore = -10000;
+        for (let i = 0; i < moves.length; i++) {
+            if (moves[i].score > bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    } else {
+        let bestScore = 10000;
+        for (let i = 0; i < moves.length; i++) {
+            if (moves[i].score < bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    }
+
+    return moves[bestMove];
+}
+
 function findStrategicMove(board, emptyPositions) {
   const cornerPositions = [1, 3, 7, 9];
   const edgePositions = [2, 4, 6, 8];
@@ -159,45 +226,45 @@ function findStrategicMove(board, emptyPositions) {
   return null;
 }
 
-
-
 function handlePlayerMove(senderId, move) {
-  let board = userBoards[senderId];
-  if (makeMove(board, move, player1)) {
-    if (checkWin(board, player1)) {
-      endGame(senderId, 'هزمتني 🙄، المرة القادمة سأهزمك😏!');
-      return;
-    } else if (checkDraw(board)) {
-      endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
-      return;
-    }
+    let board = userBoards[senderId];
+    if (makeMove(board, move, player1)) {
+        if (checkWin(board, player1)) {
+            endGame(senderId, 'هزمتني 🙄، المرة القادمة سأهزمك😏!');
+            return;
+        } else if (checkDraw(board)) {
+            endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
+            return;
+        }
 
-    let computerMovePosition = computerMove(board, move);
-    if (computerMovePosition) {
-      makeMove(board, computerMovePosition, computer);
-      if (checkWin(board, computer)) {
-        endGame(senderId, 'هزمتك 😂، حاول المرة القادمة ان تهزمني😉');
-      } else if (checkDraw(board)) {
-        endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
-      } else {
-        botly.sendText({
-          id: senderId,
-          text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1 إلى 9)`
-        });
-      }
+        const difficulty = gameSessions[senderId].difficulty;
+        let computerMovePosition = computerMove(board, move, difficulty);
+        if (computerMovePosition) {
+            makeMove(board, computerMovePosition, computer);
+            if (checkWin(board, computer)) {
+                endGame(senderId, 'هزمتك 😂، حاول المرة القادمة ان تهزمني😉');
+            } else if (checkDraw(board)) {
+                endGame(senderId, "تعادل 😂، لعبة جيدة لنعدها ❤️");
+            } else {
+                botly.sendText({
+                    id: senderId,
+                    text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1 إلى 9)`
+                });
+            }
+        } else {
+            botly.sendText({
+                id: senderId,
+                text: 'حدث لي خطأ بحيث لم اتمكن من اختيار مكان 🥺'
+            });
+        }
     } else {
-      botly.sendText({
-        id: senderId,
-        text: 'حدث لي خطأ بحيث لم اتمكن من اختيار مكان 🥺'
-      });
+        botly.sendText({
+            id: senderId,
+            text: 'المكان محدد مسبقا, حاول تحديد مكان اخر! (إختر بين 1-9)'
+        });
     }
-  } else {
-    botly.sendText({
-      id: senderId,
-      text: 'المكان محدد مسبقا, حاول تحديد مكان اخر! (إختر بين 1-9)'
-    });
-  }
 }
+
 
 function invalidateMultiplayerSession(sessionId) {
   const session = gameSessions[sessionId];
@@ -557,16 +624,7 @@ function invalidateInviteCode(sessionId) {
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
       if (postback == "GET_STARTED") {
-       botly.sendGeneric({id: senderId, elements: {
-              title: "tic tac toe",
-              image_url: "https://telegra.ph/file/77edfdf7b35823caf90f6.jpg",
-              subtitle: "tic tac toe",
-              buttons: [
-              botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
-                    ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL}); 
-
-               setTimeout(() => {
-                                  botly.sendText({
+ setTimeout(() => {                 botly.sendText({
          id: senderId,
          text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ',
                               quick_replies: [
@@ -582,19 +640,20 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-         } else if (postback == "RESTART") {                 setTimeout(() => {
-          botly.sendText({
-            id: senderId,
-            text: 'اختر مستوى الصعوبة',
-            quick_replies: [
-              botly.createQuickReply('سهل', 'LEVEL_EASY'),
-              botly.createQuickReply('متوسط', 'LEVEL_MEDIUM'),
-              botly.createQuickReply('صعب', 'LEVEL_HARD')
-            ]
-          });
-        }, 1000);
+      } else if (postback.payload === 'RESTART') {  
+          setTimeout(() => {
+            botly.sendText({
+              id: senderId,
+              text: 'اختر مستوى الصعوبة',
+              quick_replies: [
+                botly.createQuickReply('سهل', 'LEVEL_EASY'),
+                botly.createQuickReply('متوسط', 'LEVEL_MEDIUM'),
+                botly.createQuickReply('صعب', 'LEVEL_HARD')
+              ]
+            });
+          }, 1000);
 
-         } else if (postback == "INVITE_FRIEND") {
+    } else if (postback == "INVITE_FRIEND") {
   setTimeout(() => {
     botly.sendText({
          id: senderId,
@@ -627,7 +686,13 @@ function invalidateInviteCode(sessionId) {
             ]
           });
         }, 1000); 
-          }
+    } else if (postback.payload === 'LEVEL_EASY') {
+          startGame(senderId, 'easy');
+        } else if (postback.payload === 'LEVEL_MEDIUM') {
+          startGame(senderId, 'medium');
+        } else if (postback.payload === 'LEVEL_HARD') {
+          startGame(senderId, 'hard');
+        }
 
 botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
