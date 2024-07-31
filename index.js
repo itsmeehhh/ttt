@@ -77,6 +77,7 @@ function checkWin(board, symbol) {
   );
 }
 
+
 function checkDraw(board) {
   return board.every(cell => cell === ` ${player1}` || cell === ` ${player2}`);
 }
@@ -164,7 +165,7 @@ function hardComputerMove(board, player1Move) {
 }
 
 function minimax(newBoard, player) {
-  const availSpots = newBoard.filter(s => s !== ` ${player1}` && s !== ` ${computer}`);
+  const availSpots = newBoard.filter(s => !s.includes(player1) && !s.includes(computer));
 
   if (checkWin(newBoard, player1)) {
     return { score: -10 };
@@ -214,6 +215,7 @@ function minimax(newBoard, player) {
 
   return moves[bestMove];
 }
+
 
 
 function findStrategicMove(board, emptyPositions) {
