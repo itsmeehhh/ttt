@@ -81,15 +81,18 @@ function checkDraw(board) {
   return board.every(cell => cell === ` ${player1}` || cell === ` ${player2}`);
 }
 
-function startGame(senderId) {
+function startGame(senderId, level) {
   userBoards[senderId] = initBoard();
+  userBoards[senderId].level = level; // تخزين مستوى الصعوبة
+
   setTimeout(() => {
-  botly.sendText({
-    id: senderId,
-    text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
-  });
+    botly.sendText({
+      id: senderId,
+      text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
+    });
   }, 1000);
 }
+
 
 function endGame(senderId, message) {
   botly.sendText({
@@ -142,6 +145,76 @@ function computerMove(board, player1Move) {
   return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
 }
 
+function easyComputerMove(board, player1Move) {
+  const emptyPositions = board
+    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
+    .filter(value => value !== null);
+
+  if (emptyPositions.length === 0) return null;
+
+  return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+}
+
+function mediumComputerMove(board, player1Move) {
+  return computerMove(board, player1Move); // استخدم دالة الكمبيوتر الحالية
+}
+
+function hardComputerMove(board, player1Move) {
+  return minimax(board, computer).index;
+}
+
+function minimax(newBoard, player) {
+  const availSpots = newBoard.filter(s => s !== ` ${player1}` && s !== ` ${computer}`);
+
+  if (checkWin(newBoard, player1)) {
+    return { score: -10 };
+  } else if (checkWin(newBoard, computer)) {
+    return { score: 10 };
+  } else if (availSpots.length === 0) {
+    return { score: 0 };
+  }
+
+  const moves = [];
+
+  for (let i = 0; i < availSpots.length; i++) {
+    const move = {};
+    move.index = newBoard[availSpots[i]];
+    newBoard[availSpots[i]] = ` ${player}`;
+
+    if (player === computer) {
+      const result = minimax(newBoard, player1);
+      move.score = result.score;
+    } else {
+      const result = minimax(newBoard, computer);
+      move.score = result.score;
+    }
+
+    newBoard[availSpots[i]] = move.index;
+    moves.push(move);
+  }
+
+  let bestMove;
+  if (player === computer) {
+    let bestScore = -10000;
+    for (let i = 0; i < moves.length; i++) {
+      if (moves[i].score > bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  } else {
+    let bestScore = 10000;
+    for (let i = 0; i < moves.length; i++) {
+      if (moves[i].score < bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  }
+
+  return moves[bestMove];
+}
+
 
 function findStrategicMove(board, emptyPositions) {
   const cornerPositions = [1, 3, 7, 9];
@@ -172,7 +245,15 @@ function handlePlayerMove(senderId, move) {
       return;
     }
 
-    let computerMovePosition = computerMove(board, move);
+    let computerMovePosition;
+    if (board.level === 'easy') {
+      computerMovePosition = easyComputerMove(board, move);
+    } else if (board.level === 'medium') {
+      computerMovePosition = mediumComputerMove(board, move);
+    } else if (board.level === 'hard') {
+      computerMovePosition = hardComputerMove(board, move);
+    }
+
     if (computerMovePosition) {
       makeMove(board, computerMovePosition, computer);
       if (checkWin(board, computer)) {
@@ -198,6 +279,7 @@ function handlePlayerMove(senderId, move) {
     });
   }
 }
+
 
 function invalidateMultiplayerSession(sessionId) {
   const session = gameSessions[sessionId];
@@ -582,8 +664,23 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-         } else if (postback == "RESTART") {                 startGame(senderId);
-         } else if (postback == "INVITE_FRIEND") {
+         } else if (postback == "RESTART") {                 
+        botly.sendText({
+          id: senderId,
+          text: 'اختر مستوى الصعوبة',
+          quick_replies: [
+            botly.createQuickReply('سهل', 'EASY_LEVEL'),
+            botly.createQuickReply('متوسط', 'MEDIUM_LEVEL'),
+            botly.createQuickReply('صعب', 'HARD_LEVEL')
+          ]
+        });
+      } else if (postback == "EASY_LEVEL") {
+        startGame(senderId, 'easy');
+      } else if (postback == "MEDIUM_LEVEL") {
+        startGame(senderId, 'medium');
+      } else if (postback == "HARD_LEVEL") {
+        startGame(senderId, 'hard');
+      }  else if (postback == "INVITE_FRIEND") {
   setTimeout(() => {
     botly.sendText({
          id: senderId,
