@@ -89,7 +89,7 @@ function startGame(senderId, level) {
       id: senderId,
       text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
     });
-  }, 1000);
+  }, 1200);
 }
 
 
@@ -679,8 +679,14 @@ function invalidateInviteCode(sessionId) {
       } else if (postback == "MEDIUM_LEVEL") {
         startGame(senderId, 'medium');
       } else if (postback == "HARD_LEVEL") {
+        setTimeout(() => {
+          botly.sendText({
+              id: senderId,
+              text: `أعدك انك لن تهزمني أبدا 😂🤦🏻‍♂️`
+          });
+        }, 500);
         startGame(senderId, 'hard');
-      }  else if (postback == "INVITE_FRIEND") {
+      } else if (postback == "INVITE_FRIEND") {
   setTimeout(() => {
     botly.sendText({
          id: senderId,
