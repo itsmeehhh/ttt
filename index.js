@@ -92,17 +92,6 @@ function startGame(senderId, level) {
   gameSessions[senderId] = { level: level };
 }
 
-function startGame(senderId, level) {
-  userBoards[senderId] = initBoard();
-  setTimeout(() => {
-    botly.sendText({
-      id: senderId,
-      text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
-    });
-  }, 1000);
-  gameSessions[senderId] = { level: level };
-}
-
 
 function endGame(senderId, message) {
   botly.sendText({
