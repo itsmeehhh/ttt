@@ -164,59 +164,62 @@ function hardComputerMove(board, player1Move) {
   return minimax(board, computer).index;
 }
 
-function minimax(newBoard, player) {
-  const availSpots = newBoard.filter(s => !s.includes(player1) && !s.includes(computer));
+function minimax(board, player) {
+  const availableSpots = board.filter((cell) => cell !== ` ${player1}` && cell !== ` ${player2}`);
 
-  if (checkWin(newBoard, player1)) {
-    return { score: -10 };
-  } else if (checkWin(newBoard, computer)) {
-    return { score: 10 };
-  } else if (availSpots.length === 0) {
-    return { score: 0 };
+  if (checkWin(board, computer)) {
+    return { score: 10 }; // الكمبيوتر فاز
+  } else if (checkWin(board, player1)) {
+    return { score: -10 }; // اللاعب فاز
+  } else if (availableSpots.length === 0) {
+    return { score: 0 }; // تعادل
   }
 
-  const moves = [];
+  let moves = [];
 
-  for (let i = 0; i < availSpots.length; i++) {
-    const move = {};
-    move.index = newBoard[availSpots[i]]; // حفظ الموقع الحالي
-    newBoard[availSpots[i]] = ` ${player}`; // إجراء الحركة
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] !== ` ${player1}` && board[i] !== ` ${player2}`) {
+      let move = {};
+      move.index = i + 1; // تحديد مكان الحركة 
+      move.score = null; 
 
-    if (player === computer) {
-      const result = minimax(newBoard, player1);
-      move.score = result.score;
-    } else {
-      const result = minimax(newBoard, computer);
-      move.score = result.score;
+      let boardCopy = [...board];
+      boardCopy[i] = ` ${player}`; // إجراء الحركة
+
+      if (player === computer) {
+        move.score = minimax(boardCopy, player1).score; // تحليل حركة اللاعب 
+      } else {
+        move.score = minimax(boardCopy, computer).score; // تحليل حركة الكمبيوتر
+      }
+
+      moves.push(move); 
     }
-
-    newBoard[availSpots[i]] = move.index; // إعادة تعيين الموقع
-    moves.push(move);
   }
 
   let bestMove;
+
   if (player === computer) {
+    // اختيار الحركة مع أعلى نتيجة للكمبيوتر
     let bestScore = -Infinity;
-    for (let i = 0; i < moves.length; i++) {
-      if (moves[i].score > bestScore) {
-        bestScore = moves[i].score;
-        bestMove = i;
+    moves.forEach((move) => {
+      if (move.score > bestScore) {
+        bestScore = move.score;
+        bestMove = move;
       }
-    }
+    });
   } else {
+    // اختيار الحركة مع أقل نتيجة لللاعب
     let bestScore = Infinity;
-    for (let i = 0; i < moves.length; i++) {
-      if (moves[i].score < bestScore) {
-        bestScore = moves[i].score;
-        bestMove = i;
+    moves.forEach((move) => {
+      if (move.score < bestScore) {
+        bestScore = move.score;
+        bestMove = move;
       }
-    }
+    });
   }
 
-  return moves[bestMove];
+  return bestMove;
 }
-
-
 
 function findStrategicMove(board, emptyPositions) {
   const cornerPositions = [1, 3, 7, 9];
