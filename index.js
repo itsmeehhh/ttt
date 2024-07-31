@@ -729,7 +729,7 @@ botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
      greeting: [
        {
         locale: "default",
-        text: "tic tac toe"
+        text: "tic tac toe \n اول لعبة متكاملة على الفيسبوك صنعت من طرف فريق MoroccoAI"
            }]});
    botly.setPersistentMenu({
    pageId: PageID,
