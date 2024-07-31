@@ -142,100 +142,6 @@ function computerMove(board, player1Move) {
   return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
 }
 
-function computerMoveEasy(board) {
-  const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
-  return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-}
-
-function computerMoveMedium(board, player1Move) {
-  const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
-
-  if (emptyPositions.length === 0) return null;
-
-  const winningMove = emptyPositions.find(position => {
-    const testBoard = [...board];
-    makeMove(testBoard, position, computer);
-    const win = checkWin(testBoard, computer);
-    return win;
-  });
-
-  if (winningMove) return winningMove;
-
-  const blockingMove = emptyPositions.find(position => {
-    const testBoard = [...board];
-    makeMove(testBoard, position, player1);
-    const block = checkWin(testBoard, player1);
-    return block;
-  });
-
-  if (blockingMove) return blockingMove;
-
-  const strategicMove = findStrategicMove(board, emptyPositions);
-  if (strategicMove) return strategicMove;
-
-  return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-}
-
-function computerMoveHard(board) {
-  function minimax(board, depth, isMaximizing) {
-    if (checkWin(board, computer)) {
-      return 10 - depth;
-    }
-    if (checkWin(board, player1)) {
-      return depth - 10;
-    }
-    if (checkDraw(board)) {
-      return 0;
-    }
-
-    const emptyPositions = board
-      .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-      .filter(value => value !== null);
-
-    if (isMaximizing) {
-      let maxEval = -Infinity;
-      for (const position of emptyPositions) {
-        const testBoard = [...board];
-        makeMove(testBoard, position, computer);
-        const eval = minimax(testBoard, depth + 1, false);
-        maxEval = Math.max(maxEval, eval);
-      }
-      return maxEval;
-    } else {
-      let minEval = Infinity;
-      for (const position of emptyPositions) {
-        const testBoard = [...board];
-        makeMove(testBoard, position, player1);
-        const eval = minimax(testBoard, depth + 1, true);
-        minEval = Math.min(minEval, eval);
-      }
-      return minEval;
-    }
-  }
-
-  const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
-
-  let bestMove = null;
-  let bestEval = -Infinity;
-
-  for (const position of emptyPositions) {
-    const testBoard = [...board];
-    makeMove(testBoard, position, computer);
-    const eval = minimax(testBoard, 0, false);
-    if (eval > bestEval) {
-      bestEval = eval;
-      bestMove = position;
-    }
-  }
-
-  return bestMove;
-}
 
 function findStrategicMove(board, emptyPositions) {
   const cornerPositions = [1, 3, 7, 9];
@@ -253,7 +159,7 @@ function findStrategicMove(board, emptyPositions) {
   return null;
 }
 
-let selectedLevel = 'MEDIUM'; // القيمة الافتراضية
+
 
 function handlePlayerMove(senderId, move) {
   let board = userBoards[senderId];
@@ -266,15 +172,7 @@ function handlePlayerMove(senderId, move) {
       return;
     }
 
-    let computerMovePosition;
-    if (selectedLevel === 'EASY') {
-      computerMovePosition = computerMoveEasy(board);
-    } else if (selectedLevel === 'MEDIUM') {
-      computerMovePosition = computerMoveMedium(board, move);
-    } else if (selectedLevel === 'HARD') {
-      computerMovePosition = computerMoveHard(board);
-    }
-
+    let computerMovePosition = computerMove(board, move);
     if (computerMovePosition) {
       makeMove(board, computerMovePosition, computer);
       if (checkWin(board, computer)) {
@@ -300,8 +198,6 @@ function handlePlayerMove(senderId, move) {
     });
   }
 }
-
-
 
 function invalidateMultiplayerSession(sessionId) {
   const session = gameSessions[sessionId];
@@ -686,16 +582,7 @@ function invalidateInviteCode(sessionId) {
                     buttons: [
                     botly.createWebURLButton("صفحة المطور 🇲🇦😄", "https://www.facebook.com/profile.php?id=100090780515885")]},
             aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL});
-         } else if (postback == "RESTART") {
-    botly.sendText({
-          id: senderId,
-          text: 'اختر مستوى الصعوبة:',
-          quick_replies: [
-            botly.createQuickReply('سهل', 'EASY'),
-            botly.createQuickReply('متوسط', 'MEDIUM'),
-            botly.createQuickReply('صعب', 'HARD')
-          ]
-        });
+         } else if (postback == "RESTART") {                 startGame(senderId);
          } else if (postback == "INVITE_FRIEND") {
   setTimeout(() => {
     botly.sendText({
@@ -729,10 +616,7 @@ function invalidateInviteCode(sessionId) {
             ]
           });
         }, 1000); 
-          } else if (postback === 'EASY' || postback === 'MEDIUM' || postback === 'HARD') {
-          selectedLevel = postback;
-          startGame(senderId);
-        }
+          }
 
 botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
