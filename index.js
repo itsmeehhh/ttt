@@ -41,8 +41,6 @@ function generateInviteCode() {
   return result;
 }
 
-
-
 function initBoard() {
   return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
 }
@@ -84,7 +82,7 @@ function checkDraw(board) {
 
 function startGame(senderId, level) {
   userBoards[senderId] = initBoard();
-  userBoards[senderId].level = level; // تخزين مستوى الصعوبة
+  userBoards[senderId].level = level;
 
   setTimeout(() => {
     botly.sendText({
@@ -157,7 +155,7 @@ function easyComputerMove(board, player1Move) {
 }
 
 function mediumComputerMove(board, player1Move) {
-  return computerMove(board, player1Move); // استخدم دالة الكمبيوتر الحالية
+  return computerMove(board, player1Move); 
 }
 
 function hardComputerMove(board, player1Move) {
@@ -335,9 +333,6 @@ function resetMultiplayerSessionTimeout(sessionId) {
 }
 
 
-
-
-
 // وظيفة لإنشاء جلسة لعبة متعددة اللاعبين
 function initiateMultiplayerGame(senderId, totalRounds) {
     const inviteCode = generateInviteCode();
@@ -369,7 +364,7 @@ function initiateMultiplayerGame(senderId, totalRounds) {
     }, 5 * 60 * 1000);
 }
 
-// تعديل في وظيفة handleMultiplayerMove للتعامل مع الجولات المتعددة
+//التعامل مع اللاعبين والجولات
 function handleMultiplayerMove(sessionId, player, move) {
     const session = gameSessions[sessionId];
     const board = session.board;
