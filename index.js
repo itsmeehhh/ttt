@@ -500,7 +500,7 @@ function endMultiplayerGame(sessionId, endMessage) {
                 botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
             ]
         });
-    }, 2000);
+    }, 2100);
 
     setTimeout(() => {
         botly.sendText({
@@ -511,7 +511,7 @@ function endMultiplayerGame(sessionId, endMessage) {
                 botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
             ]
         });
-    }, 2000);
+    }, 2100);
 }
 
 
