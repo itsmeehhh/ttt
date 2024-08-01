@@ -20,7 +20,6 @@ const botly = new Botly({
   FB_URL: "https://graph.facebook.com/v18.0/",
 });
 
-/*--------- Functions ---------*/
 app.get("/", function (_req, res) {
   res.sendStatus(200);
 });
@@ -32,6 +31,18 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/webhook", botly.router());
 
+function showMainMenu(senderId, text) {
+  botly.sendText({
+    id: senderId,
+    text: text,
+    quick_replies: [
+      botly.createQuickReply('اللعب مع البوت', 'RESTART'),
+      botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
+   
+    ]
+  });
+}
+                 
 function generateInviteCode() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = 'MOROCCOAI';
@@ -99,14 +110,7 @@ function endGame(senderId, message) {
     text: `انتهت اللعبة 😉\n${printBoard(userBoards[senderId])}\n${message}`
   }, function() {
     setTimeout(() => {
-      botly.sendText({
-        id: senderId,
-        text: 'يمكنك اعادة اللعب',
-        quick_replies: [
-          botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-          botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-        ]
-      });
+  showMainMenu(senderId, 'يمكنك اعادة اللعب');
     }, 1000); 
   });
   delete userBoards[senderId];
@@ -293,14 +297,7 @@ function invalidateMultiplayerSession(sessionId) {
       text: 'لقد انتهت اللعبة بسبب انكما لم تكملا اللعب 😐'
     }, function() {
       setTimeout(() => {
-        botly.sendText({
-          id: session.player1,
-          text: 'يمكنك إعادة اللعب',
-          quick_replies: [
-            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-          ]
-        });
+showMainMenu(session.player1, 'يمكنك اعادة اللعب');
       }, 1000);
     });
 
@@ -309,14 +306,7 @@ function invalidateMultiplayerSession(sessionId) {
       text: 'تم انهاء اللعبة بسبب انكما لم تكملا اللعب 😐'
     }, function() {
       setTimeout(() => {
-        botly.sendText({
-          id: session.player2,
-          text: 'يمكنك إعادة اللعب',
-          quick_replies: [
-            botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-            botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-          ]
-        });
+showMainMenu(session.player2, 'يمكنك اعادة اللعب');
       }, 1000);
     });
   }
@@ -492,25 +482,11 @@ function endMultiplayerGame(sessionId, endMessage) {
     }, 1500);
 
     setTimeout(() => {
-        botly.sendText({
-            id: player1,
-            text: 'يمكنك إعادة اللعب',
-            quick_replies: [
-                botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-                botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-            ]
-        });
+showMainMenu(player1, 'يمكنك اعادة اللعب');
     }, 2100);
 
     setTimeout(() => {
-        botly.sendText({
-            id: player2,
-            text: 'يمكنك إعادة اللعب',
-            quick_replies: [
-                botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-                botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-            ]
-        });
+showMainMenu(player2, 'يمكنك اعادة اللعب');
     }, 2100);
 }
 
@@ -520,18 +496,12 @@ function invalidateInviteCode(sessionId) {
   if (session && session.player2 === null) {
     delete gameSessions[sessionId];
     setTimeout(() => {
-   botly.sendText({
-        id: session.player1,
-        text: 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا',
-        quick_replies: [
-          botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-          botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-        ]
-      });
+ showMainMenu(session.player1, 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا');
     }, 1000);
   }
 }
 
+/*--------- Messages ---------*/
       botly.on("message", async (senderId, message, data) => {
      botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
                                  botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
@@ -615,14 +585,8 @@ function invalidateInviteCode(sessionId) {
       text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
              });
  setTimeout(() => {
-                    botly.sendText({
-                id: senderId,
-                text: 'ماذا تريد?',
-                quick_replies: [
-                botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-               botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-                          ]
-                      });}, 1000)
+showMainMenu(senderId, 'ماذا اريد ؟');
+ }, 1000);
                      }
       } else if (message.message.attachments[0].payload.sticker_id) {
        botly.sendText({id: senderId, text: "يرجى ارسال النصوص فقط 😠"});
@@ -636,28 +600,19 @@ function invalidateInviteCode(sessionId) {
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
 
-        botly.on("postback", async (senderId, message, postback, data, ref) => {
+/*--------- Postbacks ---------*/
+ botly.on("postback", async (senderId, message, postback, data, ref) => {
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
-      if (postback == "GET_STARTED") {
-       botly.sendGeneric({id: senderId, elements: {
-              title: "tic tac toe",
-              image_url: "https://telegra.ph/file/77edfdf7b35823caf90f6.jpg",
-              subtitle: "tic tac toe",
-              buttons: [
-              botly.createQuickReply("مطور البوت 🇲🇦😄", "Owner"),
-                    ]}, aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL}); 
-
-               setTimeout(() => {
-                                  botly.sendText({
-         id: senderId,
-         text: 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ',
-                              quick_replies: [
-                              botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-                             botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-                                        ]
-                                    });}, 1000)
+      if (postback == "GET_STARTED") { 
+        botly.sendText({
+          id: senderId,
+          text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
+                 });
+        setTimeout(() => {
+        showMainMenu(senderId, 'ماذا اريد ؟');
+        }, 1000);
          } else if (postback == "Owner") {
           botly.sendGeneric({id: senderId, elements: {
                       title: "Morocco AI",
@@ -714,14 +669,7 @@ function invalidateInviteCode(sessionId) {
         initiateMultiplayerGame(senderId, 10);
       } else if (postback == "BACK_TO_HOME") {
         setTimeout(() => {
-          botly.sendText({
-            id: senderId,
-            text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق',
-            quick_replies: [
-              botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-              botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-            ]
-          });
+showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
         }, 1000); 
           }
 
@@ -733,7 +681,7 @@ botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
      greeting: [
        {
         locale: "default",
-        text: "tic tac toe \n اول لعبة متكاملة على الفيسبوك صنعت من طرف فريق MoroccoAI"
+        text: "           tic tac toe \n اول لعبة متكاملة على الفيسبوك صنعت من طرف فريق\nMoroccoAI"
            }]});
    botly.setPersistentMenu({
    pageId: PageID,
@@ -749,5 +697,6 @@ composer_input_disabled: false,
             }]}]});
 const port = 8080;
  app.listen(port, () => {
- console.log(`Server running on port ${port}`);
-                               });
+ console.log(`Server running on port ${port}`);                  });
+
+/*--------- Functions ---------*/
