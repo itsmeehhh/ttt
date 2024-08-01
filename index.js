@@ -204,7 +204,7 @@ botly.createQuickReply('جولة واحدة', 'INVITE_SINGLE_ROUND'),
         setTimeout(() => {
 showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
         }, 1000); 
-          } } else if (postback == "ENTER_INVITE_CODE") {
+           } else if (postback == "ENTER_INVITE_CODE") {
      awaitingInviteCode[senderId] = true;
    setTimeout(() => {
      botly.sendText({
