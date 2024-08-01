@@ -322,52 +322,36 @@ function checkDraw(board) {
   return board.every(cell => cell === ` ${player1}` || cell === ` ${player2}`);
 }
 
-
-function computerMove(board, player1Move) {
-  const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
-
-  if (emptyPositions.length === 0) return null;
-
-  const winningMove = emptyPositions.find(position => {
-    const testBoard = [...board];
-    makeMove(testBoard, position, computer);
-    const win = checkWin(testBoard, computer);
-    return win;
-  });
-
-  if (winningMove) return winningMove;
-
-  const blockingMove = emptyPositions.find(position => {
-    const testBoard = [...board];
-    makeMove(testBoard, position, player1);
-    const block = checkWin(testBoard, player1);
-    return block;
-  });
-
-  if (blockingMove) return blockingMove;
-
-
-  const strategicMove = findStrategicMove(board, emptyPositions);
-  if (strategicMove) return strategicMove;
-
-  return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-}
-
 function easyComputerMove(board, player1Move) {
-  const emptyPositions = board
-    .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
-    .filter(value => value !== null);
-
-  if (emptyPositions.length === 0) return null;
-
-  return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+  // 80% من الحركات تكون عشوائية
+  const randomFactor = Math.random();
+  if (randomFactor < 0.8) {
+    const emptyPositions = board
+      .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
+      .filter(value => value !== null);
+    if (emptyPositions.length === 0) return null;
+    return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+  } else {
+    // 20% من الحركات تستخدم minimax
+    return minimax(board, computer).index;
+  }
 }
 
 function mediumComputerMove(board, player1Move) {
-  return computerMove(board, player1Move); 
+  // 40% من الحركات تستخدم minimax
+  const smartMove = Math.random() < 0.4;
+  if (smartMove) {
+    return minimax(board, computer).index;
+  } else {
+    // 60% من الحركات تكون عشوائية
+    const emptyPositions = board
+      .map((value, index) => (value !== ` ${player1}` && value !== ` ${computer}` ? index + 1 : null))
+      .filter(value => value !== null);
+    if (emptyPositions.length === 0) return null;
+    return emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+  }
 }
+
 
 function hardComputerMove(board, player1Move) {
   return minimax(board, computer).index;
@@ -428,22 +412,6 @@ function minimax(board, player) {
   }
 
   return bestMove;
-}
-
-function findStrategicMove(board, emptyPositions) {
-  const cornerPositions = [1, 3, 7, 9];
-  const edgePositions = [2, 4, 6, 8];
-
-
-  if (emptyPositions.includes(5)) return 5;
-
-  const preferredCorners = emptyPositions.filter(pos => cornerPositions.includes(pos));
-  if (preferredCorners.length > 0) return preferredCorners[0];
-
-  const preferredEdges = emptyPositions.filter(pos => edgePositions.includes(pos));
-  if (preferredEdges.length > 0) return preferredEdges[0];
-
-  return null;
 }
 
 function handlePlayerMove(senderId, move) {
