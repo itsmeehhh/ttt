@@ -30,98 +30,98 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/webhook", botly.router());
-
-
-                 
-
+let awaitingInviteCode = {};
 /*--------- Messages ---------*/
       botly.on("message", async (senderId, message, data) => {
      botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
                                  botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
-     if (message.message.text) {
-     const text = message.message.text.trim();
-     if (userBoards[senderId]) {
-     const move = parseInt(text);
-     if (!isNaN(move) && move >= 1 && move <= 9) {
-                                       handlePlayerMove(senderId, move);
-                                     } else {
-     botly.sendText({
-      id: senderId,
-      text: 'الرجاء اختيار بين 1 الى 9 فقط 😠 '
-       });
-        }
-        } else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
-      const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId);
-      const session = gameSessions[sessionId];
-  //
-       if (session.player2 === null) {
-         botly.sendText({
-           id: senderId,
-           text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة',
-           quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${sessionId}`)]
-         });
- } else if (session.currentPlayer === senderId) {
-      const move = parseInt(text);
-      if (!isNaN(move) && move >= 1 && move <= 9) {
-                                         handleMultiplayerMove(sessionId, senderId, move);
-  } else {
-    botly.sendText({
-      id: senderId,
-      text: 'الرجاء الإختيار بين 1 الى 9 فقط 😠'
-          });
-            }
-      } else {
+ if (message.message.text) {
+          const text = message.message.text.trim();
+
+          if (awaitingInviteCode[senderId]) {
+            // التحقق من كود الدعوة المدخل
+            const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text && gameSessions[id].player2 === null);
+            if (sessionId) {
+              gameSessions[sessionId].player2 = senderId;
+              resetMultiplayerSessionTimeout(sessionId);
+
+              botly.sendText({
+                id: gameSessions[sessionId].player1,
+                text: `قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\nرمزك هو ${player1} و رمز صديقك ${player2}`
+              });
+              botly.sendText({
+                id: senderId,
+                text: `قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو ${player2} و رمز صديقك ${player1}`
+              });
+              setTimeout(() => {
+                botly.sendText({
+                  id: gameSessions[sessionId].player1,
+                  text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
+                });
+              }, 1000);
+              setTimeout(() => {
+                botly.sendText({
+                  id: senderId,
+                  text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
+                });
+              }, 1000);
+            } else {
+               setTimeout(() => {
      botly.sendText({
        id: senderId,
-       text: 'لم يأتي دورك بعد، من فضلك انتظر حتى يلعب صديقك.'
-                            });
-                           }
-    } else if (text.startsWith("MOROCCOAI") && text.length === 17) {
+       text: 'كود الدعوة غير صالح 😑',
+       quick_replies: [botly.createQuickReply('الغاء الادخال', 'CANCEL_ENTER_INVITE_CODE')]
+     });
+   }, 1000);
+            }
+            delete awaitingInviteCode[senderId];
+          } else if (userBoards[senderId]) {
+            const move = parseInt(text);
+            if (!isNaN(move) && move >= 1 && move <= 9) {
+              handlePlayerMove(senderId, move);
+            } else {
+              botly.sendText({
+                id: senderId,
+                text: 'الرجاء اختيار بين 1 الى 9 فقط 😠 '
+              });
+            }
+          } else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
+            const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId);
+            const session = gameSessions[sessionId];
 
-                                     // Handle invite code
-       const sessionId = Object.keys(gameSessions).find(id => gameSessions[id].inviteCode === text && gameSessions[id].player2 === null);
-       if (sessionId) {
-           gameSessions[sessionId].player2 = senderId;
-           resetMultiplayerSessionTimeout(sessionId);
-
-           botly.sendText({
-               id: gameSessions[sessionId].player1,
-               text: `قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\nرمزك هو ${player1} و رمز صديقك ${player2}`
-           });
-           botly.sendText({
-               id: senderId,
-               text: `قمت بالانضمام الى اللعبة عبر كود الدعوة!\n يمكنك اللعب مع صديقك الان\nرمزك هو ${player2} و رمز صديقك ${player1}`
-           });
-           setTimeout(() => {
-               botly.sendText({
-                   id: gameSessions[sessionId].player1,
-                   text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player1 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
-               });
-           }, 1000);
-           setTimeout(() => {
-               botly.sendText({
-                   id: senderId,
-                   text: `بدأت اللعبة!\n${printBoard(gameSessions[sessionId].board)}\n${gameSessions[sessionId].currentPlayer === gameSessions[sessionId].player2 ? 'حان دورك! (إختر بين 1-9)' : 'في إنتظار ان يلعب صديقك...'}`
-               });
-           }, 1000);
-       } else {
-           botly.sendText({
-               id: senderId,
-               text: 'كود الدعوة غير صالح.'
-           });
-       }
-
+            if (session.player2 === null) {
+              botly.sendText({
+                id: senderId,
+                text: 'لا ترسل شيء حتى يدخل صديقك 😠\n ارسل له كود الدعوة لكي ينضم للعبة\n او يمكنك الغاء الدعوة',
+                quick_replies: [botly.createQuickReply('إلغاء الدعوة', `CANCEL_INVITE_${sessionId}`)]
+              });
+            } else if (session.currentPlayer === senderId) {
+              const move = parseInt(text);
+              if (!isNaN(move) && move >= 1 && move <= 9) {
+                handleMultiplayerMove(sessionId, senderId, move);
+              } else {
+                botly.sendText({
+                  id: senderId,
+                  text: 'الرجاء الإختيار بين 1 الى 9 فقط 😠'
+                });
+              }
+            } else {
+              botly.sendText({
+                id: senderId,
+                text: 'لم يأتي دورك بعد، من فضلك انتظر حتى يلعب صديقك.'
+              });
+            }
           } else {
-     botly.sendText({
-      id: senderId,
-      text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
-             });
- setTimeout(() => {
-showMainMenu(senderId, 'ماذا اريد ؟');
- }, 1000);
-                     }
-      } else if (message.message.attachments[0].payload.sticker_id) {
+            botly.sendText({
+              id: senderId,
+              text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
+            });
+            setTimeout(() => {
+              showMainMenu(senderId, 'ماذا اريد ؟');
+            }, 1000);
+          }
+    } else if (message.message.attachments[0].payload.sticker_id) {
        botly.sendText({id: senderId, text: "يرجى ارسال النصوص فقط 😠"});
             } else if (message.message.attachments[0].type == "image") {
             botly.sendText({id: senderId, text: "يرجى ارسال النصوص فقط 😠"});
@@ -204,7 +204,22 @@ botly.createQuickReply('جولة واحدة', 'INVITE_SINGLE_ROUND'),
         setTimeout(() => {
 showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
         }, 1000); 
-          }
+          } } else if (postback == "ENTER_INVITE_CODE") {
+     awaitingInviteCode[senderId] = true;
+   setTimeout(() => {
+     botly.sendText({
+       id: senderId,
+       text: 'ادخل كود الدعوة الذي ارسله لك صديقك',
+       quick_replies: [botly.createQuickReply('الغاء الادخال', 'CANCEL_ENTER_INVITE_CODE')]
+     });
+   }, 1000);
+   } else if (postback == "CANCEL_ENTER_INVITE_CODE") {
+     delete awaitingInviteCode[senderId];
+     setTimeout(() => {
+       showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
+     }, 1000);
+   }
+
 
 botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
                                });
@@ -239,11 +254,11 @@ function showMainMenu(senderId, text) {
     text: text,
     quick_replies: [
       botly.createQuickReply('اللعب مع البوت', 'RESTART'),
-      botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND')
-
+      botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND'),
+      botly.createQuickReply('ادخال كود الدعوة', 'ENTER_INVITE_CODE')
     ]
   });
-};
+}
 
 function initBoard() {
   return ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
