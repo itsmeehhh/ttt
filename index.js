@@ -486,6 +486,8 @@ function endMultiplayerGame(sessionId, endMessage) {
         botly.sendText({
             id: player2,
             text: resultMessage2
+            .replace('نقاطك: ' + score1, 'نقاطك: ' + score2)
+            .replace('نقاط صديقك: ' + score2, 'نقاط صديقك: ' + score1)
         });
     }, 1500);
 
