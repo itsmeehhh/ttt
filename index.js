@@ -11,7 +11,7 @@ let gameSessions = {};
 const player1 = '❌';
 const player2 = '⚪';
 const computer = '⚪'; 
-/*--------- page database ---------*/
+/*--------- page database ---------*/ 
 const botly = new Botly({
   accessToken: 'EAAVL9kMAiqQBOzXPhCfYdfrSSC1NnKhsZC6tHCEOMMQUJ2MieQClVx5Or7mDSJbbSjSz3rjI9X8sbgncUFdiZCIOcZCTiOaZCcNluU2FYoNwp0V5fqZBPoBdOZB3lYZAcDFGZBOrNc05Ktb9oW8vsJWElQAH6pBsLJtzIl8z20x6z5g08lLE50UPBRy3YiyqWhrNbgZDZD',
   verifyToken: '12345678',
