@@ -49,7 +49,7 @@ let awaitingInviteCode = {};
             if (sessionId) {
               gameSessions[sessionId].player2 = senderId;
               resetMultiplayerSessionTimeout(sessionId);
-
+              delete awaitingInviteCode[senderId];
               botly.sendText({
                 id: gameSessions[sessionId].player1,
                 text: `قام صديقك بالانضمام للعبة عبر كود الدعوة!\nيمكنكم اللعب معا الان\nرمزك هو ${player1} و رمز صديقك ${player2}`
