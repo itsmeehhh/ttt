@@ -37,6 +37,10 @@ let awaitingInviteCode = {};
                                  botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
  if (message.message.text) {
+   if (message.message.text == '.rest'){
+     delete userBoards[senderId];
+     showMainMenu(senderId, 'تم حذف سجل اللعبة');
+   }
           const text = message.message.text.trim();
 
           if (awaitingInviteCode[senderId]) {
@@ -161,7 +165,8 @@ let awaitingInviteCode = {};
           quick_replies: [
             botly.createQuickReply('سهل', 'EASY_LEVEL'),
             botly.createQuickReply('متوسط', 'MEDIUM_LEVEL'),
-            botly.createQuickReply('صعب', 'HARD_LEVEL')
+            botly.createQuickReply('صعب', 'HARD_LEVEL'),
+             botly.createQuickReply('رجوع', 'BACK_TO_HOME')
           ]
         });
         }, 1000);
