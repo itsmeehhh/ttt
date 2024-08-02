@@ -339,7 +339,7 @@ function easyComputerMove(board, player1Move) {
 
 function mediumComputerMove(board, player1Move) {
   // 40% من الحركات تستخدم minimax
-  const smartMove = Math.random() < 0.4;
+  const smartMove = Math.random() < 0.6;
   if (smartMove) {
     return minimax(board, computer).index;
   } else {
