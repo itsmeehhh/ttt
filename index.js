@@ -13,7 +13,7 @@ const player2 = '⚪';
 const computer = '⚪'; 
 /*--------- page database ---------*/ 
 const botly = new Botly({
-  accessToken: 'EAAVL9kMAiqQBOZBcITLO1frMtCwyNLy3xVHZCxLwEUS3ZBZBVvSHIv60X8tZAmfbreFdnH1RzIDVsZAd3PjGl4hYbdrPaglhZAlFhRfawkEED8TLikElWe1Y7dObBCbYJSZCmGW1zuZAoSAV3JCFZBZBpyyo0MWuRitC3Pr6PK8Fq5j2snZA0OHudqTXZCloMBrnt5ZAvcOwZDZD',
+  accessToken: 'EAAVL9kMAiqQBOZCtedZAQilTs7xZChDVKEEVpQN5eidOitEIEl25cbfC2yn3dN2KcEZC89xMTOGS679OOzHqZB0YYqpDvVmKjFILmNJvJs2WWZCIVgkUAqhO4eZBSvAaYXtZB8WSkYGj6dMkysBVOkueSEzPuIA3k5aFRP4mZAB2R2UT57uKkYWRGu5yntwrP9uenZBQZDZD',
   verifyToken: '12345678',
   webHookPath: process.env.WB_PATH,
   notificationType: Botly.CONST.REGULAR,
