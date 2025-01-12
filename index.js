@@ -141,15 +141,39 @@ let awaitingInviteCode = {};
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
-      if (postback == "GET_STARTED") { 
+      if (postback == "GET_STARTED") {
+    if (userBoards[senderId]) {
+        const board = userBoards[senderId];
         botly.sendText({
-          id: senderId,
-          text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
-                 });
+            id: senderId,
+            text: `لديك لعبة جارية مع البوت! 🤖\n${printBoard(board)}\n${board.level === 'easy' ? 'مستوى سهل' : board.level === 'medium' ? 'مستوى متوسط' : 'مستوى صعب'}\nحان دورك! (اختر بين 1-9)`
+        });
+    } 
+    else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
+        const ongoingSession = Object.values(gameSessions).find(session => 
+            session.player1 === senderId || session.player2 === senderId
+        );
+
+        if (ongoingSession) {
+            const { board, currentPlayer, player1, player2 } = ongoingSession;
+
+            botly.sendText({
+                id: senderId,
+                text: `لديك لعبة جارية مع صديق! 🎮\n${printBoard(board)}\n${currentPlayer === senderId ? 'حان دورك! (اختر بين 1-9)' : 'في انتظار أن يلعب صديقك...'}`
+            });
+        }
+    } 
+    else {
+        botly.sendText({
+            id: senderId,
+            text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت أم اللعب مع صديق'
+        });
         setTimeout(() => {
-        showMainMenu(senderId, 'ماذا اريد ؟');
-        }, 1000);
-         } else if (postback == "Owner") {
+            showMainMenu(senderId, 'ماذا تريد؟');
+        }, 1500);
+    }
+}
+ else if (postback == "Owner") {
           botly.sendGeneric({id: senderId, elements: {
                       title: "Morocco AI",
                       image_url: "https://telegra.ph/file/6db48bb667028c068d85a.jpg",
