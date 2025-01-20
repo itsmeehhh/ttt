@@ -310,7 +310,10 @@ function startGame(senderId, level) {
   setTimeout(() => {
     botly.sendText({
       id: senderId,
-      text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`
+      text: `رمزك ${player1} و رمزي ${computer}\n${printBoard(userBoards[senderId])}\nانت أولا! (اختر بين 1-9)`,
+    quick_replies: [
+      botly.createQuickReply('البوت اولا', 'BOT_FIRST')
+    ]
     });
   }, 1200);
 }
