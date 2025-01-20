@@ -149,7 +149,26 @@ let awaitingInviteCode = {};
         setTimeout(() => {
         showMainMenu(senderId, 'ماذا اريد ؟');
         }, 1000);
-         } else if (postback == "Owner") {
+         } if (postback == "BOT_FIRST") {
+    if (userBoards[senderId]) {
+      // البوت يلعب أولاً (يختار المركز - المكان 5)
+      makeMove(userBoards[senderId], 5, computer);
+
+      // إرسال اللوحة بعد حركة البوت
+      botly.sendText({
+        id: senderId,
+        text: `لقد لعبت أولاً واخترت المكان 5!\n${printBoard(userBoards[senderId])}\nحان دورك! (اختر بين 1-9)`
+      });
+
+      // إعادة تعيين المهلة (timeout) بعد حركة البوت
+      if (userBoards[senderId].timeout) {
+        clearTimeout(userBoards[senderId].timeout);
+      }
+      userBoards[senderId].timeout = setTimeout(() => {
+        endGameDueToInactivity(senderId);
+      }, 5 * 60 * 1000); // 5 دقائق
+    }
+  } else if (postback == "Owner") {
           botly.sendGeneric({id: senderId, elements: {
                       title: "Morocco AI",
                       image_url: "https://telegra.ph/file/6db48bb667028c068d85a.jpg",
