@@ -153,13 +153,12 @@ let awaitingInviteCode = {};
     if (userBoards[senderId]) {
       // البوت يلعب أولاً (يختار المركز - المكان 5)
       makeMove(userBoards[senderId], 5, computer);
-
-      // إرسال اللوحة بعد حركة البوت
+setTimeout(() => {
       botly.sendText({
         id: senderId,
         text: `لقد لعبت أولاً واخترت المكان 5!\n${printBoard(userBoards[senderId])}\nحان دورك! (اختر بين 1-9)`
       });
-
+}, 1000);
       // إعادة تعيين المهلة (timeout) بعد حركة البوت
       if (userBoards[senderId].timeout) {
         clearTimeout(userBoards[senderId].timeout);
