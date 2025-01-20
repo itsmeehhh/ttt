@@ -141,39 +141,15 @@ let awaitingInviteCode = {};
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.MARK_SEEN});
        botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_ON});
 
-      if (postback == "GET_STARTED") {
-    if (userBoards[senderId]) {
-        const board = userBoards[senderId];
+      if (postback == "GET_STARTED") { 
         botly.sendText({
-            id: senderId,
-            text: `لديك لعبة جارية مع البوت! 🤖\n${printBoard(board)}\n${board.level === 'easy' ? 'مستوى سهل' : board.level === 'medium' ? 'مستوى متوسط' : 'مستوى صعب'}\nحان دورك! (اختر بين 1-9)`
-        });
-    } 
-    else if (Object.values(gameSessions).some(session => session.player1 === senderId || session.player2 === senderId)) {
-        const ongoingSession = Object.values(gameSessions).find(session => 
-            session.player1 === senderId || session.player2 === senderId
-        );
-
-        if (ongoingSession) {
-            const { board, currentPlayer, player1, player2 } = ongoingSession;
-
-            botly.sendText({
-                id: senderId,
-                text: `لديك لعبة جارية مع صديق! 🎮\n${printBoard(board)}\n${currentPlayer === senderId ? 'حان دورك! (اختر بين 1-9)' : 'في انتظار أن يلعب صديقك...'}`
-            });
-        }
-    } 
-    else {
-        botly.sendText({
-            id: senderId,
-            text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت أم اللعب مع صديق'
-        });
+          id: senderId,
+          text: 'مرحبا بك في لعبة tic tac toe! \n يمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق'
+                 });
         setTimeout(() => {
-            showMainMenu(senderId, 'ماذا تريد؟');
-        }, 1500);
-    }
-}
- else if (postback == "Owner") {
+        showMainMenu(senderId, 'ماذا اريد ؟');
+        }, 1000);
+         } else if (postback == "Owner") {
           botly.sendGeneric({id: senderId, elements: {
                       title: "Morocco AI",
                       image_url: "https://telegra.ph/file/6db48bb667028c068d85a.jpg",
@@ -307,6 +283,11 @@ function startGame(senderId, level) {
   userBoards[senderId] = initBoard();
   userBoards[senderId].level = level;
 
+  // إضافة مهلة (timeout) لمدة 5 دقائق
+  userBoards[senderId].timeout = setTimeout(() => {
+    endGameDueToInactivity(senderId);
+  }, 5 * 60 * 1000); // 5 دقائق
+
   setTimeout(() => {
     botly.sendText({
       id: senderId,
@@ -316,13 +297,16 @@ function startGame(senderId, level) {
 }
 
 function endGame(senderId, message) {
+  if (userBoards[senderId] && userBoards[senderId].timeout) {
+    clearTimeout(userBoards[senderId].timeout);
+  }
   botly.sendText({
     id: senderId,
     text: `انتهت اللعبة 😉\n${printBoard(userBoards[senderId])}\n${message}`
   }, function() {
     setTimeout(() => {
-  showMainMenu(senderId, 'يمكنك اعادة اللعب');
-    }, 1000); 
+      showMainMenu(senderId, 'يمكنك اعادة اللعب');
+    }, 1000);
   });
   delete userBoards[senderId];
 }
@@ -445,6 +429,15 @@ function minimax(board, player) {
 
 function handlePlayerMove(senderId, move) {
   let board = userBoards[senderId];
+
+  // إعادة تعيين المهلة (timeout) عند كل حركة
+  if (board.timeout) {
+    clearTimeout(board.timeout);
+  }
+  board.timeout = setTimeout(() => {
+    endGameDueToInactivity(senderId);
+  }, 5 * 60 * 1000); // 5 دقائق
+
   if (makeMove(board, move, player1)) {
     if (checkWin(board, player1)) {
       endGame(senderId, 'هزمتني 🙄، المرة القادمة سأهزمك😏!');
@@ -476,8 +469,8 @@ function handlePlayerMove(senderId, move) {
         });
       }
     } else {
-       delete gameSessions[sessionId];
-  showMainMenu(sessionId, 'حدث لي خطأ، يمكنك اعادة اللعب من جديد');
+      delete userBoards[senderId];
+      showMainMenu(senderId, 'حدث لي خطأ، يمكنك اعادة اللعب من جديد');
     }
   } else {
     botly.sendText({
@@ -702,6 +695,19 @@ function invalidateInviteCode(sessionId) {
     setTimeout(() => {
  showMainMenu(session.player1, 'انتهت صلاحية كود الدعوة \n يمكنك اللعب مع البوت او مع صديق مجددا');
     }, 1000);
+  }
+}
+function endGameDueToInactivity(senderId) {
+  if (userBoards[senderId]) {
+    botly.sendText({
+      id: senderId,
+      text: 'تم إنهاء الجلسة بسبب عدم النشاط لمدة 5 دقائق.'
+    }, function() {
+      setTimeout(() => {
+        showMainMenu(senderId, 'يمكنك اعادة اللعب');
+      }, 1000);
+    });
+    delete userBoards[senderId];
   }
 }
 //End of code, made with love by MoroccoAI Team
