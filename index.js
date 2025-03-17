@@ -784,6 +784,7 @@ function matchGlobalPlayers() {
         }, 1000);
     }
 }
+//$$$$$$$$$$$$
 function handleGlobalMove(sessionId, player, move) {
     const session = gameSessions[sessionId];
     if (!session) return;
@@ -834,6 +835,8 @@ function handleGlobalMove(sessionId, player, move) {
         });
     }
 }
+
+//$$$$$$$$
 function endGlobalGame(sessionId, winnerId, loserId) {
     const session = gameSessions[sessionId];
     if (!session) return;
@@ -853,6 +856,8 @@ function endGlobalGame(sessionId, winnerId, loserId) {
         showMainMenu(loserId, "يمكنك إعادة اللعب.");
     }, 2000);
 }
+
+//$$$$$$$$$$$$$$
 function handleGlobalMatch(senderId) {
     botly.sendText({
         id: senderId,
