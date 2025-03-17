@@ -241,18 +241,19 @@ showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك 
      setTimeout(() => {
        showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
      }, 1000);
-   } else if (postback == "GLOBAL_MATCH") {
-     handleGlobalMatch(senderId);
-   } else if (postback.startsWith("MOVE_")) {
-     const move = parseInt(postback.split("_")[1]);
-     const sessionId = Object.keys(gameSessions).find(id => 
-         gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId
-     );
+        } else if (postback == "GLOBAL_MATCH") {
+          handleGlobalMatch(senderId);
+        } else if (postback.startsWith("MOVE_")) {
+          const move = parseInt(postback.split("_")[1]);
+          const sessionId = Object.keys(gameSessions).find(id => 
+              gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId
+          );
 
-     if (sessionId) {
-         handleGlobalMove(sessionId, senderId, move);
-     }
-   }
+          if (sessionId) {
+              handleGlobalMove(sessionId, senderId, move);
+          }
+        }
+
 
 
 botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
@@ -745,6 +746,113 @@ function endGameDueToInactivity(senderId) {
   }
 }
 //End of code, made with love by MoroccoAI Team
+function matchGlobalPlayers() {
+    if (globalQueue.length >= 2) {
+        let player1 = globalQueue.shift();
+        let player2 = globalQueue.shift();
+
+        let sessionId = generateInviteCode();
+        gameSessions[sessionId] = {
+            player1: player1,
+            player2: player2,
+            board: initBoard(),
+            currentPlayer: player1
+        };
+
+        resetMultiplayerSessionTimeout(sessionId);
+
+        botly.sendText({
+            id: player1,
+            text: `تم العثور على خصم عالمي! بدأت اللعبة.\nرمزك هو ❌ ورمز خصمك هو ⚪.`
+        });
+
+        botly.sendText({
+            id: player2,
+            text: `تم العثور على خصم عالمي! بدأت اللعبة.\nرمزك هو ⚪ ورمز خصمك هو ❌.`
+        });
+
+        setTimeout(() => {
+            botly.sendText({
+                id: player1,
+                text: `${printBoard(gameSessions[sessionId].board)}\nحان دورك! (إختر بين 1-9)`
+            });
+
+            botly.sendText({
+                id: player2,
+                text: `${printBoard(gameSessions[sessionId].board)}\nفي انتظار أن يلعب خصمك...`
+            });
+        }, 1000);
+    }
+}
+function handleGlobalMove(sessionId, player, move) {
+    const session = gameSessions[sessionId];
+    if (!session) return;
+
+    const board = session.board;
+    const currentPlayer = (player === session.player1) ? player1 : player2;
+
+    if (makeMove(board, move, currentPlayer)) {
+        resetMultiplayerSessionTimeout(sessionId);
+
+        const nextPlayer = (player === session.player1) ? session.player2 : session.player1;
+        const currentMoveText = `لقد اخترت الموقع ${move}`;
+        const opponentMoveText = `خصمك اختار الموقع ${move}`;
+
+        if (checkWin(board, currentPlayer)) {
+            endGlobalGame(sessionId, player, nextPlayer);
+        } else if (checkDraw(board)) {
+            botly.sendText({ id: session.player1, text: `انتهت المباراة بالتعادل! 😌` });
+            botly.sendText({ id: session.player2, text: `انتهت المباراة بالتعادل! 😌` });
+
+            setTimeout(() => {
+                botly.sendText({ id: session.player1, text: `${printBoard(board)}` });
+                botly.sendText({ id: session.player2, text: `${printBoard(board)}` });
+            }, 1000);
+
+            delete gameSessions[sessionId];
+            setTimeout(() => {
+                showMainMenu(session.player1, "يمكنك إعادة اللعب.");
+                showMainMenu(session.player2, "يمكنك إعادة اللعب.");
+            }, 2000);
+        } else {
+            botly.sendText({
+                id: session.player1,
+                text: `${player === session.player1 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار أن يلعب خصمك...'}`
+            });
+
+            botly.sendText({
+                id: session.player2,
+                text: `${player === session.player2 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار أن يلعب خصمك...'}`
+            });
+
+            session.currentPlayer = nextPlayer;
+        }
+    } else {
+        botly.sendText({
+            id: player,
+            text: 'الموقع مشغول بالفعل، اختر موقعًا آخر!'
+        });
+    }
+}
+function endGlobalGame(sessionId, winnerId, loserId) {
+    const session = gameSessions[sessionId];
+    if (!session) return;
+
+    botly.sendText({ id: winnerId, text: `🎉 لقد فزت في المباراة!` });
+    botly.sendText({ id: loserId, text: `😔 لقد خسرت المباراة!` });
+
+    setTimeout(() => {
+        botly.sendText({ id: winnerId, text: `${printBoard(session.board)}` });
+        botly.sendText({ id: loserId, text: `${printBoard(session.board)}` });
+    }, 1000);
+
+    delete gameSessions[sessionId];
+
+    setTimeout(() => {
+        showMainMenu(winnerId, "يمكنك إعادة اللعب.");
+        showMainMenu(loserId, "يمكنك إعادة اللعب.");
+    }, 2000);
+}
 function handleGlobalMatch(senderId) {
     botly.sendText({
         id: senderId,
@@ -776,132 +884,4 @@ function handleGlobalMatch(senderId) {
             }, 1000);
         }
     }, 10000);
-}
-function matchGlobalPlayers() {
-    if (globalQueue.length >= 2) {
-        let player1 = globalQueue.shift();
-        let player2 = globalQueue.shift();
-
-        let sessionId = generateInviteCode();
-        gameSessions[sessionId] = {
-            player1: player1,
-            player2: player2,
-            board: initBoard(),
-            currentPlayer: player1
-        };
-
-        resetMultiplayerSessionTimeout(sessionId);
-
-        botly.sendText({
-            id: player1,
-            text: `تم العثور على لاعب عالمي! بدأت اللعبة.\nرمزك هو ❌ ورمز خصمك هو ⚪.`
-        });
-
-        botly.sendText({
-            id: player2,
-            text: `تم العثور على لاعب عالمي! بدأت اللعبة.\nرمزك هو ⚪ ورمز خصمك هو ❌.`
-        });
-
-        setTimeout(() => {
-            botly.sendText({
-                id: player1,
-                text: `${printBoard(gameSessions[sessionId].board)}\nحان دورك! (إختر بين 1-9)`
-            });
-
-            botly.sendText({
-                id: player2,
-                text: `${printBoard(gameSessions[sessionId].board)}\nفي انتظار دور خصمك...`
-            });
-        }, 1000);
-    }
-}
-function handleGlobalMove(sessionId, player, move) {
-    const session = gameSessions[sessionId];
-    const board = session.board;
-    const currentPlayer = (player === session.player1) ? player1 : player2;
-
-    if (makeMove(board, move, currentPlayer)) {
-        resetMultiplayerSessionTimeout(sessionId);
-
-        const nextPlayer = (player === session.player1) ? session.player2 : session.player1;
-        const currentMoveText = `لقد اخترت الموقع ${move}`;
-        const opponentMoveText = `خصمك اختار الموقع ${move}`;
-
-        if (checkWin(board, currentPlayer)) {
-            endGlobalGame(sessionId, player, nextPlayer);
-        } else if (checkDraw(board)) {
-            botly.sendText({
-                id: session.player1,
-                text: `انتهت المباراة بالتعادل! 😌`
-            });
-            botly.sendText({
-                id: session.player2,
-                text: `انتهت المباراة بالتعادل! 😌`
-            });
-
-            setTimeout(() => {
-                botly.sendText({
-                    id: session.player1,
-                    text: `${printBoard(board)}`
-                });
-                botly.sendText({
-                    id: session.player2,
-                    text: `${printBoard(board)}`
-                });
-            }, 1000);
-
-            delete gameSessions[sessionId];
-            setTimeout(() => {
-                showMainMenu(session.player1, "يمكنك إعادة اللعب.");
-                showMainMenu(session.player2, "يمكنك إعادة اللعب.");
-            }, 2000);
-        } else {
-            botly.sendText({
-                id: session.player1,
-                text: `${player === session.player1 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار خصمك...'}`
-            });
-
-            botly.sendText({
-                id: session.player2,
-                text: `${player === session.player2 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار خصمك...'}`
-            });
-
-            session.currentPlayer = nextPlayer;
-        }
-    } else {
-        botly.sendText({
-            id: player,
-            text: 'الموقع مشغول بالفعل، اختر موقعًا آخر!'
-        });
-    }
-}
-function endGlobalGame(sessionId, winnerId, loserId) {
-    botly.sendText({
-        id: winnerId,
-        text: `🎉 لقد فزت في المباراة!`
-    });
-
-    botly.sendText({
-        id: loserId,
-        text: `😔 لقد خسرت المباراة!`
-    });
-
-    setTimeout(() => {
-        botly.sendText({
-            id: winnerId,
-            text: `${printBoard(gameSessions[sessionId].board)}`
-        });
-
-        botly.sendText({
-            id: loserId,
-            text: `${printBoard(gameSessions[sessionId].board)}`
-        });
-    }, 1000);
-
-    delete gameSessions[sessionId];
-
-    setTimeout(() => {
-        showMainMenu(winnerId, "يمكنك إعادة اللعب.");
-        showMainMenu(loserId, "يمكنك إعادة اللعب.");
-    }, 2000);
 }
