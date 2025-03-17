@@ -244,15 +244,23 @@ showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك 
         } else if (postback == "GLOBAL_MATCH") {
           handleGlobalMatch(senderId);
         } else if (postback.startsWith("MOVE_")) {
-          const move = parseInt(postback.split("_")[1]);
-          const sessionId = Object.keys(gameSessions).find(id => 
-              gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId
-          );
+            const move = parseInt(postback.split("_")[1]);
+            const sessionId = Object.keys(gameSessions).find(id => 
+                gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId
+            );
 
-          if (sessionId) {
-              handleGlobalMove(sessionId, senderId, move);
-          }
+            if (sessionId) {
+                const session = gameSessions[sessionId];
+
+                // التأكد من نوع الجلسة
+                if (session.hasOwnProperty("totalRounds")) {
+                    handleMultiplayerMove(sessionId, senderId, move); // يستخدم اللعب مع صديق
+                } else {
+                    handleGlobalMove(sessionId, senderId, move); // يستخدم اللعب العالمي
+                }
+            }
         }
+
 
 
 
@@ -836,6 +844,7 @@ function handleGlobalMove(sessionId, player, move) {
     }
 }
 
+
 //$$$$$$$$
 function endGlobalGame(sessionId, winnerId, loserId) {
     const session = gameSessions[sessionId];
@@ -856,6 +865,7 @@ function endGlobalGame(sessionId, winnerId, loserId) {
         showMainMenu(loserId, "يمكنك إعادة اللعب.");
     }, 2000);
 }
+
 
 //$$$$$$$$$$$$$$
 function handleGlobalMatch(senderId) {
