@@ -5,16 +5,15 @@ import Botly from 'botly';
 dotenv.config();
 
 const app = express();
-const PageID = "190194500843283";
+const PageID = "359211540615525";
 let userBoards = {};
 let gameSessions = {};
-let globalQueue = [];
 const player1 = '❌';
 const player2 = '⚪';
 const computer = '⚪'; 
 /*--------- page database ---------*/ 
 const botly = new Botly({
-  accessToken: 'EAAGOuaYK4eIBOZCnZC4iFFUc0SfPKJ3SSd1685mJXMpaZCfXmadsdMyjZCrz2LYdQWUQJhwkY5detxQuTKZAL177ZCpjn8RM0ECk5QlaDheciFWi04DIgq0UyXUGgJxWrrxahd8zyPBSYxTD6co8Y6f3W6StwuK99r4ruAFlSe176gpdABGmgwJw6BQsrE8tAQ',
+  accessToken: 'EAAVL9kMAiqQBOZCtedZAQilTs7xZChDVKEEVpQN5eidOitEIEl25cbfC2yn3dN2KcEZC89xMTOGS679OOzHqZB0YYqpDvVmKjFILmNJvJs2WWZCIVgkUAqhO4eZBSvAaYXtZB8WSkYGj6dMkysBVOkueSEzPuIA3k5aFRP4mZAB2R2UT57uKkYWRGu5yntwrP9uenZBQZDZD',
   verifyToken: '12345678',
   webHookPath: process.env.WB_PATH,
   notificationType: Botly.CONST.REGULAR,
@@ -26,7 +25,7 @@ app.get("/", function (_req, res) {
 });
 app.use(
   bodyParser.json({
-    verify: botly.getVerifySignature('58b4160d65e19aefaf7418a410fd3f15'),
+    verify: botly.getVerifySignature('d697b070c3c06ef0a2923276dd69c0b7'),
   })
 );
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -241,27 +240,7 @@ showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك 
      setTimeout(() => {
        showMainMenu(senderId, 'مرحبا بك في لعبة tic tac toe! \nيمكنك الاختيار بين اللعب مع البوت ام اللعب مع صديق ');
      }, 1000);
-        } else if (postback == "GLOBAL_MATCH") {
-          handleGlobalMatch(senderId);
-        } else if (postback.startsWith("MOVE_")) {
-            const move = parseInt(postback.split("_")[1]);
-            const sessionId = Object.keys(gameSessions).find(id => 
-                gameSessions[id].player1 === senderId || gameSessions[id].player2 === senderId
-            );
-
-            if (sessionId) {
-                const session = gameSessions[sessionId];
-
-                // التأكد من نوع الجلسة
-                if (session.hasOwnProperty("totalRounds")) {
-                    handleMultiplayerMove(sessionId, senderId, move); // يستخدم اللعب مع صديق
-                } else {
-                    handleGlobalMove(sessionId, senderId, move); // يستخدم اللعب العالمي
-                }
-            }
-        }
-
-
+   }
 
 
 botly.sendAction({id: senderId, action: Botly.CONST.ACTION_TYPES.TYPING_OFF});
@@ -298,7 +277,6 @@ function showMainMenu(senderId, text) {
     quick_replies: [
       botly.createQuickReply('اللعب مع البوت', 'RESTART'),
       botly.createQuickReply('اللعب مع صديق', 'INVITE_FRIEND'),
-      botly.createQuickReply('اللعب العالمي', 'GLOBAL_MATCH'),
       botly.createQuickReply('ادخال كود الدعوة', 'ENTER_INVITE_CODE')
     ]
   });
@@ -754,149 +732,3 @@ function endGameDueToInactivity(senderId) {
   }
 }
 //End of code, made with love by MoroccoAI Team
-function matchGlobalPlayers() {
-    if (globalQueue.length >= 2) {
-        let player1 = globalQueue.shift();
-        let player2 = globalQueue.shift();
-
-        let sessionId = generateInviteCode();
-        gameSessions[sessionId] = {
-            player1: player1,
-            player2: player2,
-            board: initBoard(),
-            currentPlayer: player1
-        };
-
-        resetMultiplayerSessionTimeout(sessionId);
-
-        botly.sendText({
-            id: player1,
-            text: `تم العثور على خصم عالمي! بدأت اللعبة.\nرمزك هو ❌ ورمز خصمك هو ⚪.`
-        });
-
-        botly.sendText({
-            id: player2,
-            text: `تم العثور على خصم عالمي! بدأت اللعبة.\nرمزك هو ⚪ ورمز خصمك هو ❌.`
-        });
-
-        setTimeout(() => {
-            botly.sendText({
-                id: player1,
-                text: `${printBoard(gameSessions[sessionId].board)}\nحان دورك! (إختر بين 1-9)`
-            });
-
-            botly.sendText({
-                id: player2,
-                text: `${printBoard(gameSessions[sessionId].board)}\nفي انتظار أن يلعب خصمك...`
-            });
-        }, 1000);
-    }
-}
-//$$$$$$$$$$$$
-function handleGlobalMove(sessionId, player, move) {
-    const session = gameSessions[sessionId];
-    if (!session) return;
-
-    const board = session.board;
-    const currentPlayer = (player === session.player1) ? player1 : player2;
-
-    if (makeMove(board, move, currentPlayer)) {
-        resetMultiplayerSessionTimeout(sessionId);
-
-        const nextPlayer = (player === session.player1) ? session.player2 : session.player1;
-        const currentMoveText = `لقد اخترت الموقع ${move}`;
-        const opponentMoveText = `خصمك اختار الموقع ${move}`;
-
-        if (checkWin(board, currentPlayer)) {
-            endGlobalGame(sessionId, player, nextPlayer);
-        } else if (checkDraw(board)) {
-            botly.sendText({ id: session.player1, text: `انتهت المباراة بالتعادل! 😌` });
-            botly.sendText({ id: session.player2, text: `انتهت المباراة بالتعادل! 😌` });
-
-            setTimeout(() => {
-                botly.sendText({ id: session.player1, text: `${printBoard(board)}` });
-                botly.sendText({ id: session.player2, text: `${printBoard(board)}` });
-            }, 1000);
-
-            delete gameSessions[sessionId];
-            setTimeout(() => {
-                showMainMenu(session.player1, "يمكنك إعادة اللعب.");
-                showMainMenu(session.player2, "يمكنك إعادة اللعب.");
-            }, 2000);
-        } else {
-            botly.sendText({
-                id: session.player1,
-                text: `${player === session.player1 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player1 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار أن يلعب خصمك...'}`
-            });
-
-            botly.sendText({
-                id: session.player2,
-                text: `${player === session.player2 ? currentMoveText : opponentMoveText}\n${printBoard(board)}\n${nextPlayer === session.player2 ? 'حان دورك! (إختر بين 1-9)' : 'في انتظار أن يلعب خصمك...'}`
-            });
-
-            session.currentPlayer = nextPlayer;
-        }
-    } else {
-        botly.sendText({
-            id: player,
-            text: 'الموقع مشغول بالفعل، اختر موقعًا آخر!'
-        });
-    }
-}
-
-
-//$$$$$$$$
-function endGlobalGame(sessionId, winnerId, loserId) {
-    const session = gameSessions[sessionId];
-    if (!session) return;
-
-    botly.sendText({ id: winnerId, text: `🎉 لقد فزت في المباراة!` });
-    botly.sendText({ id: loserId, text: `😔 لقد خسرت المباراة!` });
-
-    setTimeout(() => {
-        botly.sendText({ id: winnerId, text: `${printBoard(session.board)}` });
-        botly.sendText({ id: loserId, text: `${printBoard(session.board)}` });
-    }, 1000);
-
-    delete gameSessions[sessionId];
-
-    setTimeout(() => {
-        showMainMenu(winnerId, "يمكنك إعادة اللعب.");
-        showMainMenu(loserId, "يمكنك إعادة اللعب.");
-    }, 2000);
-}
-
-
-//$$$$$$$$$$$$$$
-function handleGlobalMatch(senderId) {
-    botly.sendText({
-        id: senderId,
-        text: "جاري البحث عن لاعبين عالميين..."
-    });
-
-    setTimeout(() => {
-        botly.sendText({
-            id: senderId,
-            text: "الرجاء الانتظار، يتم البحث عن خصم...",
-        });
-    }, 2000);
-
-    globalQueue.push(senderId);
-
-    setTimeout(() => {
-        matchGlobalPlayers();
-    }, 2000);
-
-    setTimeout(() => {
-        if (globalQueue.includes(senderId)) {
-            globalQueue = globalQueue.filter(id => id !== senderId);
-            botly.sendText({
-                id: senderId,
-                text: "لم يتم العثور على لاعبين متاحين. حاول مرة أخرى لاحقًا."
-            });
-            setTimeout(() => {
-                showMainMenu(senderId, "يمكنك المحاولة مجددًا أو اختيار وضع آخر للعب.");
-            }, 1000);
-        }
-    }, 10000);
-}
