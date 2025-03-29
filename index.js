@@ -458,6 +458,8 @@ function startGame(senderId, level) {
   if (userBoards[senderId]) return;
   userBoards[senderId] = initBoard();
   userBoards[senderId].level = level;
+  userBoards[senderId].isAwaitingBotMove = false; // <-- السطر المضاف هنا
+  userBoards[senderId].userStarted = false; // تأكد من تهيئة هذه أيضاً
 
   userBoards[senderId].timeout = setTimeout(() => {
     endGameDueToInactivity(senderId);
@@ -611,23 +613,36 @@ function minimax(board, player) {
 
 function handlePlayerMove(senderId, move) {
   let board = userBoards[senderId];
+  if (!board) return;
+
+  if (board.isAwaitingBotMove) {
+      botly.sendText({
+          id: senderId,
+          text: '⏳ انتظر حتى ألعب دوري!'
+      });
+      return;
+  }
 
   if (board.timeout) {
     clearTimeout(board.timeout);
   }
-  board.timeout = setTimeout(() => {
-    endGameDueToInactivity(senderId);
-  }, 5 * 60 * 1000); // 5 دقائق
-if (!board.userStarted) {
-    board.userStarted = true; // المستخدم بدأ اللعب
-}
+
+  if (!board.userStarted) {
+    board.userStarted = true;
+  }
+
   if (makeMove(board, move, player1)) {
     board = userBoards[senderId];
+
     if (!checkWin(board, player1) && !checkWin(board, computer) && !checkDraw(board)) {
-    botly.sendText({
-        id: senderId,
-        text: `انت اخترت المكان ${move}\n${printBoard(board)}\nحان دوري، انتظر حركتي 👇🏻`
-    });}
+        botly.sendText({
+            id: senderId,
+            text: `انت اخترت المكان ${move}\n${printBoard(board)}\nحان دوري، انتظر حركتي 👇🏻`
+        });
+    }
+
+    board.isAwaitingBotMove = true;
+
     if (checkWin(board, player1)) {
       endGame(senderId, getRandomMessage(loseRobot));
       return;
@@ -635,39 +650,53 @@ if (!board.userStarted) {
       endGame(senderId, getRandomMessage(drawRobot));
       return;
     }
+
     if (board.userStarted) {
       board.botFirstDisabled = true;
     }
+
     setTimeout(() => {
       if (!userBoards[senderId]) {
-          return; 
+          return;
       }
-    let computerMovePosition;
-    if (board.level === 'easy') {
-      computerMovePosition = easyComputerMove(board, move);
-    } else if (board.level === 'medium') {
-      computerMovePosition = mediumComputerMove(board, move);
-    } else if (board.level === 'hard') {
-      computerMovePosition = hardComputerMove(board, move);
-    }
+      let currentBoard = userBoards[senderId];
 
-    if (computerMovePosition) {
-      makeMove(board, computerMovePosition, computer);
-      if (checkWin(board, computer)) {
-        endGame(senderId, getRandomMessage(winRobot));
-      } else if (checkDraw(board)) {
-        endGame(senderId, getRandomMessage(drawRobot));
-      } else {
-        botly.sendText({
-          id: senderId,
-          text: `سأختار المكان ${computerMovePosition}\n${printBoard(board)}\nحان دورك! (إختر بين 1 إلى 9)`
-        });
+      let computerMovePosition;
+      if (currentBoard.level === 'easy') {
+        computerMovePosition = easyComputerMove(currentBoard, move);
+      } else if (currentBoard.level === 'medium') {
+        computerMovePosition = mediumComputerMove(currentBoard, move);
+      } else if (currentBoard.level === 'hard') {
+        computerMovePosition = hardComputerMove(currentBoard, move);
       }
-    } else {
-      delete userBoards[senderId];
-      showMainMenu(senderId, 'حدث لي خطأ، يمكنك اعادة اللعب من جديد');
-    }
-      }, 2000);  //مهلة لوحة البوت
+
+      if (computerMovePosition) {
+        makeMove(currentBoard, computerMovePosition, computer);
+
+        currentBoard.isAwaitingBotMove = false;
+
+        if (checkWin(currentBoard, computer)) {
+          endGame(senderId, getRandomMessage(winRobot));
+        } else if (checkDraw(currentBoard)) {
+          endGame(senderId, getRandomMessage(drawRobot));
+        } else {
+          botly.sendText({
+            id: senderId,
+            text: `سأختار المكان ${computerMovePosition}\n${printBoard(currentBoard)}\nحان دورك! (إختر بين 1 إلى 9)`
+          });
+          if (currentBoard.timeout) clearTimeout(currentBoard.timeout);
+           currentBoard.timeout = setTimeout(() => {
+               endGameDueToInactivity(senderId);
+           }, 5 * 60 * 1000);
+        }
+      } else {
+         if(userBoards[senderId]) {
+             userBoards[senderId].isAwaitingBotMove = false;
+         }
+        delete userBoards[senderId];
+        showMainMenu(senderId, 'حدث لي خطأ، يمكنك اعادة اللعب من جديد');
+      }
+      }, 2000);
   } else {
     botly.sendText({
       id: senderId,
